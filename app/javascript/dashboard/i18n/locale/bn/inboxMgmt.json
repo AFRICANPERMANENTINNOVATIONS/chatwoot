@@ -1115,7 +1115,7 @@
         "USER_MESSAGE": "হাই",
         "AGENT_MESSAGE": "হ্যালো"
       },
-      "BRANDING_TEXT": "Chatwoot দ্বারা পরিচালিত",
+      "BRANDING_TEXT": "Powered by PerfectCX",
       "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {

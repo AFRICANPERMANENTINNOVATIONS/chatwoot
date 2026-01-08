@@ -1115,7 +1115,7 @@
         "USER_MESSAGE": "ሰላም",
         "AGENT_MESSAGE": "ሰላም"
       },
-      "BRANDING_TEXT": "በChatwoot የተነሳ",
+      "BRANDING_TEXT": "Powered by PerfectCX",
       "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
