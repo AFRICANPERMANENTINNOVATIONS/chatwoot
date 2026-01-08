@@ -1,63 +1,73 @@
 version: '3'
 
-services:
-  base: &base
-    image: chatwoot/chatwoot:latest
-    env_file: .env ## Change this file for customized env variables
-    volumes:
-      - storage_data:/app/storage
+x-base-config: &base-config
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+    args:
+      RAILS_ENV: production
+  volumes:
+    - perfectcx-storage:/app/storage
+  networks:
+    - dokploy-network
+  environment:
+    - FRONTEND_URL=${FRONTEND_URL}
+    - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+    - RAILS_ENV=${RAILS_ENV}
+    - NODE_ENV=${NODE_ENV}
+    - INSTALLATION_ENV=${INSTALLATION_ENV}
+    - RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT}
+    - LOG_LEVEL=${LOG_LEVEL}
+    - DEFAULT_LOCALE=${DEFAULT_LOCALE}
+    - POSTGRES_HOST=${POSTGRES_HOST}
+    - POSTGRES_PORT=${POSTGRES_PORT}
+    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+    - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - REDIS_URL=${REDIS_URL}
+    - ENABLE_ACCOUNT_SIGNUP=${ENABLE_ACCOUNT_SIGNUP}
+    - ACTIVE_STORAGE_SERVICE=${ACTIVE_STORAGE_SERVICE}
 
-  rails:
-    <<: *base
+services:
+  perfectcx-rails:
+    <<: *base-config
     depends_on:
-      - postgres
-      - redis
-    ports:
-      - '127.0.0.1:3000:3000'
-    environment:
-      - NODE_ENV=production
-      - RAILS_ENV=production
-      - INSTALLATION_ENV=docker
+      perfectcx-postgres:
+        condition: service_started
+      perfectcx-redis:
+        condition: service_started
     entrypoint: docker/entrypoints/rails.sh
-    command: ['bundle', 'exec', 'rails', 's', '-p', '3000', '-b', '0.0.0.0']
+    command: ['bundle', 'exec', 'sh', '-c', 'rails db:perfectcx_prepare && rails s -p 3000 -b 0.0.0.0']
     restart: always
 
-  sidekiq:
-    <<: *base
+  perfectcx-sidekiq:
+    <<: *base-config
     depends_on:
-      - postgres
-      - redis
-    environment:
-      - NODE_ENV=production
-      - RAILS_ENV=production
-      - INSTALLATION_ENV=docker
+      perfectcx-postgres:
+        condition: service_started
+      perfectcx-redis:
+        condition: service_started
     command: ['bundle', 'exec', 'sidekiq', '-C', 'config/sidekiq.yml']
     restart: always
 
-  postgres:
-    image: pgvector/pgvector:pg16
+  perfectcx-postgres:
+    image: pgvector/pgvector:pg17-trixie
     restart: always
-    ports:
-      - '127.0.0.1:5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - perfectcx-postgres-data:/var/lib/postgresql/data
+      - ./init-vector.sql:/docker-entrypoint-initdb.d/init-vector.sql
     environment:
-      - POSTGRES_DB=chatwoot
-      - POSTGRES_USER=postgres
-      # Please provide your own password.
-      - POSTGRES_PASSWORD=
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
-  redis:
+  perfectcx-redis:
     image: redis:alpine
     restart: always
-    command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
-    env_file: .env
     volumes:
-      - redis_data:/data
-    ports:
-      - '127.0.0.1:6379:6379'
+      - perfectcx-redis-data:/data
 
 volumes:
-  storage_data:
-  postgres_data:
-  redis_data:
+  perfectcx-storage:
+  perfectcx-postgres-data:
+  perfectcx-redis-data:
