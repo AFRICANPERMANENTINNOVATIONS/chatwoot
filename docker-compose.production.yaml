@@ -1,36 +1,33 @@
 version: '3'
 
-x-base-config: &base-config
-  build:
-    context: .
-    dockerfile: docker/Dockerfile
-    args:
-      RAILS_ENV: production
-  volumes:
-    - perfectcx-storage:/app/storage
-  networks:
-    - dokploy-network
-  environment:
-    - FRONTEND_URL=${FRONTEND_URL}
-    - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-    - RAILS_ENV=${RAILS_ENV}
-    - NODE_ENV=${NODE_ENV}
-    - INSTALLATION_ENV=${INSTALLATION_ENV}
-    - RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT}
-    - LOG_LEVEL=${LOG_LEVEL}
-    - DEFAULT_LOCALE=${DEFAULT_LOCALE}
-    - POSTGRES_HOST=${POSTGRES_HOST}
-    - POSTGRES_PORT=${POSTGRES_PORT}
-    - POSTGRES_DATABASE=${POSTGRES_DATABASE}
-    - POSTGRES_USERNAME=${POSTGRES_USERNAME}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    - REDIS_URL=${REDIS_URL}
-    - ENABLE_ACCOUNT_SIGNUP=${ENABLE_ACCOUNT_SIGNUP}
-    - ACTIVE_STORAGE_SERVICE=${ACTIVE_STORAGE_SERVICE}
-
 services:
   perfectcx-rails:
-    <<: *base-config
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        RAILS_ENV: production
+    volumes:
+      - perfectcx-storage:/app/storage
+    networks:
+      - dokploy-network
+    environment:
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - RAILS_ENV=${RAILS_ENV}
+      - NODE_ENV=${NODE_ENV}
+      - INSTALLATION_ENV=${INSTALLATION_ENV}
+      - RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - DEFAULT_LOCALE=${DEFAULT_LOCALE}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - ENABLE_ACCOUNT_SIGNUP=${ENABLE_ACCOUNT_SIGNUP}
+      - ACTIVE_STORAGE_SERVICE=${ACTIVE_STORAGE_SERVICE}
     depends_on:
       perfectcx-postgres:
         condition: service_started
@@ -41,7 +38,32 @@ services:
     restart: always
 
   perfectcx-sidekiq:
-    <<: *base-config
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        RAILS_ENV: production
+    volumes:
+      - perfectcx-storage:/app/storage
+    networks:
+      - dokploy-network
+    environment:
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - RAILS_ENV=${RAILS_ENV}
+      - NODE_ENV=${NODE_ENV}
+      - INSTALLATION_ENV=${INSTALLATION_ENV}
+      - RAILS_LOG_TO_STDOUT=${RAILS_LOG_TO_STDOUT}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - DEFAULT_LOCALE=${DEFAULT_LOCALE}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_USERNAME=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - ENABLE_ACCOUNT_SIGNUP=${ENABLE_ACCOUNT_SIGNUP}
+      - ACTIVE_STORAGE_SERVICE=${ACTIVE_STORAGE_SERVICE}
     depends_on:
       perfectcx-postgres:
         condition: service_started
@@ -53,6 +75,8 @@ services:
   perfectcx-postgres:
     image: pgvector/pgvector:pg17-trixie
     restart: always
+    networks:
+      - dokploy-network
     volumes:
       - perfectcx-postgres-data:/var/lib/postgresql/data
       - ./init-vector.sql:/docker-entrypoint-initdb.d/init-vector.sql
@@ -64,8 +88,14 @@ services:
   perfectcx-redis:
     image: redis:alpine
     restart: always
+    networks:
+      - dokploy-network
     volumes:
       - perfectcx-redis-data:/data
+
+networks:
+  dokploy-network:
+    external: true
 
 volumes:
   perfectcx-storage:
