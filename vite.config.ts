@@ -71,6 +71,17 @@ export default defineConfig({
         }
       : undefined,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'legacy',
+        includePaths: [
+          path.resolve('./app/javascript/widget/assets/scss'),
+          path.resolve('./app/javascript/shared/assets/stylesheets'),
+        ],
+      },
+    },
+  },
   resolve: {
     alias: {
       vue: 'vue/dist/vue.esm-bundler.js',
