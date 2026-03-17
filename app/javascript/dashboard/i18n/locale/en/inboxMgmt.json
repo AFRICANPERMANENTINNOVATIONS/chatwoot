@@ -628,7 +628,63 @@
       "WIDGET_BUILDER": "Widget Builder",
       "BOT_CONFIGURATION": "Bot Configuration",
       "ACCOUNT_HEALTH": "Account Health",
-      "CSAT": "CSAT"
+      "CSAT": "CSAT",
+      "WHATSAPP_TEMPLATES": "Templates"
+    },
+    "WHATSAPP_TEMPLATE_MGMT": {
+      "TITLE": "WhatsApp Templates",
+      "SUBTITLE": "Create and manage WhatsApp message templates for this inbox.",
+      "CREATE": {
+        "TITLE": "Create Template",
+        "NAME_LABEL": "Template Name",
+        "NAME_PLACEHOLDER": "my_template_name",
+        "NAME_HELP": "Lowercase letters, numbers, and underscores only.",
+        "LANGUAGE_LABEL": "Language",
+        "CATEGORY_LABEL": "Category",
+        "HEADER_TYPE_LABEL": "Header Type",
+        "HEADER_LABEL": "Header Text",
+        "HEADER_PLACEHOLDER": "Enter header text. Use {{1}} for variables.",
+        "MEDIA_HEADER_INFO": "Upload a sample {format} file or paste a URL. Meta uses this as an example during review.",
+        "MEDIA_URL_LABEL": "Media URL",
+        "MEDIA_URL_PLACEHOLDER": "https://example.com/image.jpg",
+        "UPLOAD_LABEL": "Click to upload a {format} file",
+        "OR_PASTE_URL": "or paste a URL",
+        "UPLOADING": "Uploading...",
+        "UPLOAD_SUCCESS": "File uploaded successfully.",
+        "UPLOAD_ERROR": "Failed to upload file.",
+        "MEDIA_UPLOAD_HELP": "The file will be uploaded to Meta for template review. When sending the template, you can use a different media URL.",
+        "BODY_LABEL": "Body Text",
+        "BODY_PLACEHOLDER": "Enter template body. Use {{1}}, {{2}} for variables.",
+        "FOOTER_LABEL": "Footer (optional)",
+        "FOOTER_PLACEHOLDER": "Enter footer text",
+        "SUBMIT": "Create Template",
+        "SUCCESS": "Template created and submitted for approval.",
+        "ERROR": "Failed to create template.",
+        "EXAMPLES_HEADER": "Header variable examples (required by Meta)",
+        "EXAMPLES_BODY": "Body variable examples (required by Meta)",
+        "EXAMPLE_PLACEHOLDER": "Example value for {variable}",
+        "EXAMPLES_HELP": "Meta requires example values to review your template. These are samples only and won't be sent to contacts."
+      },
+      "DELETE": {
+        "TITLE": "Delete Template",
+        "CONFIRM": "Are you sure you want to delete the template \"{name}\"? This action cannot be undone.",
+        "SUCCESS": "Template deleted successfully.",
+        "ERROR": "Failed to delete template."
+      },
+      "LIST": {
+        "LOADING": "Loading...",
+        "EMPTY": "No templates found. Create one or sync from WhatsApp.",
+        "NAME": "Name",
+        "LANGUAGE": "Language",
+        "CATEGORY": "Category",
+        "STATUS": "Status",
+        "ACTIONS": "Actions"
+      },
+      "STATUS": {
+        "APPROVED": "Approved",
+        "PENDING": "Pending",
+        "REJECTED": "Rejected"
+      }
     },
     "CHANNEL_PREFERENCES": "Channel Preferences",
     "WIDGET_FEATURES": "Widget features",

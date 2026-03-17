@@ -48,6 +48,28 @@ class Inboxes extends CacheEnabledApiClient {
       template,
     });
   }
+
+  getWhatsAppTemplates(inboxId) {
+    return axios.get(`${this.url}/${inboxId}/whatsapp_templates`);
+  }
+
+  createWhatsAppTemplate(inboxId, template) {
+    return axios.post(`${this.url}/${inboxId}/whatsapp_templates`, {
+      template,
+    });
+  }
+
+  deleteWhatsAppTemplate(inboxId, templateName) {
+    return axios.delete(
+      `${this.url}/${inboxId}/whatsapp_templates/${templateName}`
+    );
+  }
+
+  getWhatsAppTemplateStatus(inboxId, templateName) {
+    return axios.get(
+      `${this.url}/${inboxId}/whatsapp_templates/${templateName}`
+    );
+  }
 }
 
 export default new Inboxes();

@@ -367,6 +367,21 @@ export const actions = {
     );
     return response.data;
   },
+  getWhatsAppTemplates: async (_, { inboxId }) => {
+    const response = await InboxesAPI.getWhatsAppTemplates(inboxId);
+    return response.data;
+  },
+  createWhatsAppTemplate: async (_, { inboxId, template }) => {
+    const response = await InboxesAPI.createWhatsAppTemplate(inboxId, template);
+    return response.data;
+  },
+  deleteWhatsAppTemplate: async (_, { inboxId, templateName }) => {
+    const response = await InboxesAPI.deleteWhatsAppTemplate(
+      inboxId,
+      templateName
+    );
+    return response.data;
+  },
 };
 
 export const mutations = {
