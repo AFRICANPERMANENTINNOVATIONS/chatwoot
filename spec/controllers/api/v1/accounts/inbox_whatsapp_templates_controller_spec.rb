@@ -148,10 +148,10 @@ RSpec.describe Api::V1::Accounts::InboxWhatsappTemplatesController, type: :reque
   describe 'GET /api/v1/accounts/{account.id}/inboxes/{inbox.id}/whatsapp_templates/{template_name}' do
     context 'when template exists' do
       it 'returns template details' do
-        allow(mock_service).to receive(:get_template).with('hello_world').and_return({
-                                                                                       success: true,
-                                                                                       templates: [{ 'name' => 'hello_world', 'status' => 'APPROVED' }]
-                                                                                     })
+        allow(mock_service).to receive(:get_template).with('hello_world').and_return(
+          success: true,
+          templates: [{ 'name' => 'hello_world', 'status' => 'APPROVED' }]
+        )
 
         get "/api/v1/accounts/#{account.id}/inboxes/#{whatsapp_inbox.id}/whatsapp_templates/hello_world",
             headers: admin.create_new_auth_token, as: :json
