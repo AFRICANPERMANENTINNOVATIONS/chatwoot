@@ -6,6 +6,8 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
       send_attachment_message(phone_number, message)
     elsif message.content_type == 'input_select'
       send_interactive_text_message(phone_number, message)
+    elsif whatsapp_interactive_message?(message)
+      send_whatsapp_interactive_message(phone_number, message)
     else
       send_text_message(phone_number, message)
     end
@@ -186,6 +188,89 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     {
       message_id: reply_to
     }
+  end
+
+  # Detects if the message content is a JSON payload for WhatsApp interactive messages
+  # Supports: list, button, cta_url, product, product_list, flow
+  # The JSON must have a "type" key matching a WhatsApp interactive type
+  WHATSAPP_INTERACTIVE_TYPES = %w[list button cta_url product product_list flow].freeze
+
+  def whatsapp_interactive_message?(message)
+    return false if message.content.blank?
+
+    parsed = parse_interactive_json(message.content)
+    return false unless parsed
+
+    WHATSAPP_INTERACTIVE_TYPES.include?(parsed['type'])
+  rescue StandardError
+    false
+  end
+
+  def parse_interactive_json(content)
+    return nil unless content.strip.start_with?('{')
+
+    JSON.parse(content)
+  rescue JSON::ParserError
+    nil
+  end
+
+  # Sends a raw WhatsApp interactive message from JSON content
+  # Expected JSON format in message.content:
+  #
+  # List message:
+  # {
+  #   "type": "list",
+  #   "header": { "type": "text", "text": "Header" },           // optional
+  #   "body": { "text": "Choose an option" },                    // required
+  #   "footer": { "text": "Footer text" },                       // optional
+  #   "action": {
+  #     "button": "Menu",
+  #     "sections": [{
+  #       "title": "Section 1",
+  #       "rows": [
+  #         { "id": "1", "title": "Option 1", "description": "Desc" },
+  #         { "id": "2", "title": "Option 2" }
+  #       ]
+  #     }]
+  #   }
+  # }
+  #
+  # Reply buttons:
+  # {
+  #   "type": "button",
+  #   "body": { "text": "Choose one" },
+  #   "action": {
+  #     "buttons": [
+  #       { "type": "reply", "reply": { "id": "yes", "title": "Yes" } },
+  #       { "type": "reply", "reply": { "id": "no", "title": "No" } }
+  #     ]
+  #   }
+  # }
+  #
+  # CTA URL button:
+  # {
+  #   "type": "cta_url",
+  #   "body": { "text": "Visit our website" },
+  #   "action": {
+  #     "name": "cta_url",
+  #     "parameters": { "display_text": "Visit", "url": "https://example.com" }
+  #   }
+  # }
+  def send_whatsapp_interactive_message(phone_number, message)
+    interactive_payload = parse_interactive_json(message.content)
+    response = HTTParty.post(
+      "#{phone_id_path}/messages",
+      headers: api_headers,
+      body: {
+        messaging_product: 'whatsapp',
+        context: whatsapp_reply_context(message),
+        to: phone_number,
+        type: 'interactive',
+        interactive: interactive_payload
+      }.to_json
+    )
+
+    process_response(response, message)
   end
 
   def send_interactive_text_message(phone_number, message)
