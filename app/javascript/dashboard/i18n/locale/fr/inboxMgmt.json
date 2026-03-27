@@ -628,7 +628,63 @@
       "WIDGET_BUILDER": "Constructeur de Widget",
       "BOT_CONFIGURATION": "Configuration du bot",
       "ACCOUNT_HEALTH": "Account Health",
-      "CSAT": "CSAT"
+      "CSAT": "CSAT",
+      "WHATSAPP_TEMPLATES": "Modèles"
+    },
+    "WHATSAPP_TEMPLATE_MGMT": {
+      "TITLE": "Modèles WhatsApp",
+      "SUBTITLE": "Créez et gérez les modèles de messages WhatsApp pour cette boîte de réception.",
+      "CREATE": {
+        "TITLE": "Créer un modèle",
+        "NAME_LABEL": "Nom du modèle",
+        "NAME_PLACEHOLDER": "nom_du_modele",
+        "NAME_HELP": "Lettres minuscules, chiffres et underscores uniquement.",
+        "LANGUAGE_LABEL": "Langue",
+        "CATEGORY_LABEL": "Catégorie",
+        "HEADER_TYPE_LABEL": "Type d'en-tête",
+        "HEADER_LABEL": "Texte de l'en-tête",
+        "HEADER_PLACEHOLDER": "Saisissez le texte de l'en-tête. Utilisez {{1}} pour les variables.",
+        "MEDIA_HEADER_INFO": "Téléversez un fichier {format} ou collez une URL. Meta l'utilise comme exemple lors de la vérification.",
+        "MEDIA_URL_LABEL": "URL du média",
+        "MEDIA_URL_PLACEHOLDER": "https://example.com/image.jpg",
+        "UPLOAD_LABEL": "Cliquez pour téléverser un fichier {format}",
+        "OR_PASTE_URL": "ou collez une URL",
+        "UPLOADING": "Téléversement en cours...",
+        "UPLOAD_SUCCESS": "Fichier téléversé avec succès.",
+        "UPLOAD_ERROR": "Échec du téléversement du fichier.",
+        "MEDIA_UPLOAD_HELP": "Le fichier sera envoyé à Meta pour la vérification du modèle. Lors de l'envoi du modèle, vous pouvez utiliser une URL de média différente.",
+        "BODY_LABEL": "Corps du message",
+        "BODY_PLACEHOLDER": "Saisissez le corps du modèle. Utilisez {{1}}, {{2}} pour les variables.",
+        "FOOTER_LABEL": "Pied de page (optionnel)",
+        "FOOTER_PLACEHOLDER": "Saisissez le texte du pied de page",
+        "SUBMIT": "Créer le modèle",
+        "SUCCESS": "Modèle créé et soumis pour approbation.",
+        "ERROR": "Échec de la création du modèle.",
+        "EXAMPLES_HEADER": "Exemples de variables d'en-tête (requis par Meta)",
+        "EXAMPLES_BODY": "Exemples de variables du corps (requis par Meta)",
+        "EXAMPLE_PLACEHOLDER": "Valeur d'exemple pour {variable}",
+        "EXAMPLES_HELP": "Meta exige des valeurs d'exemple pour examiner votre modèle. Ce sont des exemples uniquement, ils ne seront pas envoyés aux contacts."
+      },
+      "DELETE": {
+        "TITLE": "Supprimer le modèle",
+        "CONFIRM": "Êtes-vous sûr de vouloir supprimer le modèle « {name} » ? Cette action est irréversible.",
+        "SUCCESS": "Modèle supprimé avec succès.",
+        "ERROR": "Échec de la suppression du modèle."
+      },
+      "LIST": {
+        "LOADING": "Chargement...",
+        "EMPTY": "Aucun modèle trouvé. Créez-en un ou synchronisez depuis WhatsApp.",
+        "NAME": "Nom",
+        "LANGUAGE": "Langue",
+        "CATEGORY": "Catégorie",
+        "STATUS": "Statut",
+        "ACTIONS": "Actions"
+      },
+      "STATUS": {
+        "APPROVED": "Approuvé",
+        "PENDING": "En attente",
+        "REJECTED": "Rejeté"
+      }
     },
     "CHANNEL_PREFERENCES": "Channel Preferences",
     "WIDGET_FEATURES": "Widget features",
@@ -777,10 +833,10 @@
       "WHATSAPP_LOGIN_CANCELLED": "WhatsApp login was cancelled. Please try again.",
       "WHATSAPP_WEBHOOK_TITLE": "Jeton de vérification du Webhook",
       "WHATSAPP_WEBHOOK_SUBHEADER": "Ce jeton est utilisé pour vérifier l'authenticité du point de terminaison du webhook.",
-      "WHATSAPP_TEMPLATES_SYNC_TITLE": "Sync Templates",
-      "WHATSAPP_TEMPLATES_SYNC_SUBHEADER": "Manually sync message templates from WhatsApp to update your available templates.",
-      "WHATSAPP_TEMPLATES_SYNC_BUTTON": "Sync Templates",
-      "WHATSAPP_TEMPLATES_SYNC_SUCCESS": "Templates sync initiated successfully. It may take a couple of minutes to update.",
+      "WHATSAPP_TEMPLATES_SYNC_TITLE": "Synchroniser les modèles",
+      "WHATSAPP_TEMPLATES_SYNC_SUBHEADER": "Synchronisez manuellement les modèles de messages depuis WhatsApp pour mettre à jour vos modèles disponibles.",
+      "WHATSAPP_TEMPLATES_SYNC_BUTTON": "Synchroniser les modèles",
+      "WHATSAPP_TEMPLATES_SYNC_SUCCESS": "Synchronisation des modèles lancée. La mise à jour peut prendre quelques minutes.",
       "UPDATE_PRE_CHAT_FORM_SETTINGS": "Mettre à jour les paramètres du formulaire de pré-chat"
     },
     "HELP_CENTER": {

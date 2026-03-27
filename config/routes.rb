@@ -228,6 +228,9 @@ Rails.application.routes.draw do
             resource :csat_template, only: [:show, :create], controller: 'inbox_csat_templates' do
               post :analyze, on: :collection
             end
+
+            resources :whatsapp_templates, only: [:index, :create, :show, :destroy],
+                      controller: 'inbox_whatsapp_templates', param: :template_name
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do
@@ -567,6 +570,9 @@ Rails.application.routes.draw do
   post 'webhooks/sms/:phone_number', to: 'webhooks/sms#process_payload'
   get 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#verify'
   post 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#process_payload'
+  # Unified WhatsApp webhook — single URL for all numbers, routes via payload metadata
+  get 'webhooks/whatsapp', to: 'webhooks/whatsapp#verify_unified'
+  post 'webhooks/whatsapp', to: 'webhooks/whatsapp#process_unified_payload'
   get 'webhooks/instagram', to: 'webhooks/instagram#verify'
   post 'webhooks/instagram', to: 'webhooks/instagram#events'
   post 'webhooks/tiktok', to: 'webhooks/tiktok#events'

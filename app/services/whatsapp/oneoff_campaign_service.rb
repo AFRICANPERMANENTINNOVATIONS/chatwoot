@@ -58,7 +58,7 @@ class Whatsapp::OneoffCampaignService
       return
     end
 
-    send_whatsapp_template_message(to: contact.phone_number)
+    send_whatsapp_template_message(to: contact.phone_number, contact: contact)
   end
 
   def process_audience(audience_labels)
@@ -70,10 +70,12 @@ class Whatsapp::OneoffCampaignService
     Rails.logger.info "Campaign #{campaign.id} processing completed"
   end
 
-  def send_whatsapp_template_message(to:)
+  def send_whatsapp_template_message(to:, contact:)
+    personalized_params = interpolate_contact_variables(campaign.template_params, contact)
+
     processor = Whatsapp::TemplateProcessorService.new(
       channel: channel,
-      template_params: campaign.template_params
+      template_params: personalized_params
     )
 
     name, namespace, lang_code, processed_parameters = processor.call
@@ -92,5 +94,23 @@ class Whatsapp::OneoffCampaignService
     Rails.logger.error "Backtrace: #{e.backtrace.first(5).join('\n')}"
     # continue processing remaining contacts
     nil
+  end
+
+  def interpolate_contact_variables(params, contact)
+    liquid_service = Liquid::CampaignTemplateService.new(campaign: campaign, contact: contact)
+    deep_interpolate(params, liquid_service)
+  end
+
+  def deep_interpolate(obj, liquid_service)
+    case obj
+    when String
+      obj.include?('{{') ? liquid_service.call(obj) : obj
+    when Hash
+      obj.transform_values { |v| deep_interpolate(v, liquid_service) }
+    when Array
+      obj.map { |v| deep_interpolate(v, liquid_service) }
+    else
+      obj
+    end
   end
 end

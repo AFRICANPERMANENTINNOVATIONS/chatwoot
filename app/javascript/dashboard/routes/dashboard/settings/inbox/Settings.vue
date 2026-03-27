@@ -22,6 +22,7 @@ import WeeklyAvailability from './components/WeeklyAvailability.vue';
 import GreetingsEditor from 'shared/components/GreetingsEditor.vue';
 import ConfigurationPage from './settingsPage/ConfigurationPage.vue';
 import CustomerSatisfactionPage from './settingsPage/CustomerSatisfactionPage.vue';
+import WhatsAppTemplatesPage from './settingsPage/WhatsAppTemplatesPage.vue';
 import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
 import AccountHealth from './components/AccountHealth.vue';
@@ -45,6 +46,7 @@ export default {
     CollaboratorsPage,
     ConfigurationPage,
     CustomerSatisfactionPage,
+    WhatsAppTemplatesPage,
     FacebookReauthorize,
     GreetingsEditor,
     PreChatFormSettings,
@@ -198,6 +200,10 @@ export default {
       if (this.shouldShowWhatsAppConfiguration) {
         visibleToAllChannelTabs = [
           ...visibleToAllChannelTabs,
+          {
+            key: 'whatsapp-templates',
+            name: this.$t('INBOX_MGMT.TABS.WHATSAPP_TEMPLATES'),
+          },
           {
             key: 'whatsapp-health',
             name: this.$t('INBOX_MGMT.TABS.ACCOUNT_HEALTH'),
@@ -1181,6 +1187,12 @@ export default {
         </div>
         <div v-if="selectedTabKey === 'bot-configuration'">
           <BotConfiguration :inbox="inbox" />
+        </div>
+        <div
+          v-if="selectedTabKey === 'whatsapp-templates'"
+          class="mx-6 max-w-4xl"
+        >
+          <WhatsAppTemplatesPage :inbox="inbox" />
         </div>
         <div v-if="selectedTabKey === 'whatsapp-health'">
           <AccountHealth
