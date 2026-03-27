@@ -103,4 +103,23 @@ class Whatsapp::Providers::BaseService
     json_hash = { :button => I18n.t('conversations.messages.whatsapp.list_button_label'), 'sections' => sections }
     create_payload('list', message.outgoing_content, JSON.generate(json_hash))
   end
+
+  WHATSAPP_INTERACTIVE_TYPES = %w[list button cta_url product product_list flow].freeze
+
+  def whatsapp_interactive_message?(message)
+    return false if message.content.blank?
+
+    parsed = parse_interactive_json(message.content)
+    parsed.present? && WHATSAPP_INTERACTIVE_TYPES.include?(parsed['type'])
+  rescue StandardError
+    false
+  end
+
+  def parse_interactive_json(content)
+    return nil unless content.strip.start_with?('{')
+
+    JSON.parse(content)
+  rescue JSON::ParserError
+    nil
+  end
 end
