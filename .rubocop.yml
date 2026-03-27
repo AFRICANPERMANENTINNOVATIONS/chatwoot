@@ -10,6 +10,11 @@ require:
   - ./rubocop/attachment_download.rb
   - ./rubocop/one_class_per_file.rb
 
+AllCops:
+  Exclude:
+    - 'branding.rb'
+    - 'setup_limits.rb'
+
 Layout/LineLength:
   Max: 150
 

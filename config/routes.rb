@@ -229,8 +229,10 @@ Rails.application.routes.draw do
               post :analyze, on: :collection
             end
 
-            resources :whatsapp_templates, only: [:index, :create, :show, :destroy],
-                      controller: 'inbox_whatsapp_templates', param: :template_name
+            resources :whatsapp_templates,
+                      only: [:index, :create, :show, :destroy],
+                      controller: 'inbox_whatsapp_templates',
+                      param: :template_name
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do

@@ -91,7 +91,6 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     ENV.fetch('WHATSAPP_CLOUD_BASE_URL', 'https://graph.facebook.com')
   end
 
-  # TODO: See if we can unify the API versions and for both paths and make it consistent with out facebook app API versions
   def phone_id_path
     "#{api_base_path}/v13.0/#{whatsapp_channel.provider_config['phone_number_id']}"
   end
@@ -153,29 +152,6 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
       }
     }
 
-    # Enhanced template parameters structure
-    # Note: Legacy format support (simple parameter arrays) has been removed
-    # in favor of the enhanced component-based structure that supports
-    # headers, buttons, and authentication templates.
-    #
-    # Expected payload format from frontend:
-    # {
-    #   processed_params: {
-    #     body: { '1': 'John', '2': '123 Main St' },
-    #     header: {
-    #       media_url: 'https://...',
-    #       media_type: 'image',
-    #       media_name: 'filename.pdf' # Optional, for document templates only
-    #     },
-    #     buttons: [{ type: 'url', parameter: 'otp123456' }]
-    #   }
-    # }
-    # This gets transformed into WhatsApp API component format:
-    # [
-    #   { type: 'body', parameters: [...] },
-    #   { type: 'header', parameters: [...] },
-    #   { type: 'button', sub_type: 'url', parameters: [...] }
-    # ]
     template_body[:components] = template_info[:parameters] || []
 
     template_body
@@ -190,74 +166,7 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     }
   end
 
-  # Detects if the message content is a JSON payload for WhatsApp interactive messages
-  # Supports: list, button, cta_url, product, product_list, flow
-  # The JSON must have a "type" key matching a WhatsApp interactive type
-  WHATSAPP_INTERACTIVE_TYPES = %w[list button cta_url product product_list flow].freeze
-
-  def whatsapp_interactive_message?(message)
-    return false if message.content.blank?
-
-    parsed = parse_interactive_json(message.content)
-    return false unless parsed
-
-    WHATSAPP_INTERACTIVE_TYPES.include?(parsed['type'])
-  rescue StandardError
-    false
-  end
-
-  def parse_interactive_json(content)
-    return nil unless content.strip.start_with?('{')
-
-    JSON.parse(content)
-  rescue JSON::ParserError
-    nil
-  end
-
-  # Sends a raw WhatsApp interactive message from JSON content
-  # Expected JSON format in message.content:
-  #
-  # List message:
-  # {
-  #   "type": "list",
-  #   "header": { "type": "text", "text": "Header" },           // optional
-  #   "body": { "text": "Choose an option" },                    // required
-  #   "footer": { "text": "Footer text" },                       // optional
-  #   "action": {
-  #     "button": "Menu",
-  #     "sections": [{
-  #       "title": "Section 1",
-  #       "rows": [
-  #         { "id": "1", "title": "Option 1", "description": "Desc" },
-  #         { "id": "2", "title": "Option 2" }
-  #       ]
-  #     }]
-  #   }
-  # }
-  #
-  # Reply buttons:
-  # {
-  #   "type": "button",
-  #   "body": { "text": "Choose one" },
-  #   "action": {
-  #     "buttons": [
-  #       { "type": "reply", "reply": { "id": "yes", "title": "Yes" } },
-  #       { "type": "reply", "reply": { "id": "no", "title": "No" } }
-  #     ]
-  #   }
-  # }
-  #
-  # CTA URL button:
-  # {
-  #   "type": "cta_url",
-  #   "body": { "text": "Visit our website" },
-  #   "action": {
-  #     "name": "cta_url",
-  #     "parameters": { "display_text": "Visit", "url": "https://example.com" }
-  #   }
-  # }
   def send_whatsapp_interactive_message(phone_number, message)
-    interactive_payload = parse_interactive_json(message.content)
     response = HTTParty.post(
       "#{phone_id_path}/messages",
       headers: api_headers,
@@ -266,7 +175,7 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
         context: whatsapp_reply_context(message),
         to: phone_number,
         type: 'interactive',
-        interactive: interactive_payload
+        interactive: parse_interactive_json(message.content)
       }.to_json
     )
 
