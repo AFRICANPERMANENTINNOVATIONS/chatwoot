@@ -4,7 +4,7 @@
 configs = {
   'INSTALLATION_PRICING_PLAN_QUANTITY' => 999_999,
   'ACCOUNT_AGENTS_LIMIT' => 999_999,
-  'INSTALLATION_PRICING_PLAN' => 'enterprise'
+  'INSTALLATION_PRICING_PLAN' => 'premium'
 }
 
 configs.each do |name, val|
