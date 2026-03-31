@@ -10,11 +10,6 @@ require:
   - ./rubocop/attachment_download.rb
   - ./rubocop/one_class_per_file.rb
 
-AllCops:
-  Exclude:
-    - 'branding.rb'
-    - 'setup_limits.rb'
-
 Layout/LineLength:
   Max: 150
 
@@ -235,6 +230,12 @@ AllCops:
     - 'tmp/**/*'
     - 'storage/**/*'
     - 'db/migrate/20230426130150_init_schema.rb'
+    - 'branding.rb'
+    - 'setup_limits.rb'
+    - 'setup_trial.rb'
+    - 'setup_webhook.rb'
+    - 'manage_trial.rb'
+    - 'manage_subscription.rb'
 
 FactoryBot/SyntaxMethods:
   Enabled: false

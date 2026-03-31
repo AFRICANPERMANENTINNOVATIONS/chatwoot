@@ -235,6 +235,11 @@ Rails.application.routes.draw do
                       param: :template_name
           end
 
+          # PerfectCX subscription management
+          resource :subscription, only: [:show] do
+            get :plans, on: :collection
+          end
+
           resources :inbox_members, only: [:create, :show], param: :inbox_id do
             collection do
               delete :destroy
@@ -579,6 +584,8 @@ Rails.application.routes.draw do
   post 'webhooks/instagram', to: 'webhooks/instagram#events'
   post 'webhooks/tiktok', to: 'webhooks/tiktok#events'
   post 'webhooks/shopify', to: 'webhooks/shopify#events'
+  # PerfectCX payment webhook — receives payment success/failure from payment provider
+  post 'webhooks/payment', to: 'webhooks/payment#process_payload'
 
   namespace :twitter do
     resource :callback, only: [:show]
