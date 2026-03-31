@@ -76,3 +76,10 @@ remove_orphan_conversations_job:
   cron: '0 */12 * * *'
   class: 'Internal::RemoveOrphanConversationsJob'
   queue: housekeeping
+
+# executed daily at 0800 UTC
+# check trial expirations, send warnings (J-2, J-1, J0) and suspend expired accounts
+check_trial_expirations_job:
+  cron: '0 8 * * *'
+  class: 'Internal::CheckTrialExpirationsJob'
+  queue: scheduled_jobs
