@@ -57,7 +57,7 @@ class Whatsapp::WebhookSetupService
 
   def setup_webhook
     callback_url = build_callback_url
-    verify_token = @channel.provider_config['webhook_verify_token']
+    verify_token = resolve_verify_token
 
     @api_client.subscribe_waba_webhook(@waba_id, callback_url, verify_token)
 
@@ -68,9 +68,22 @@ class Whatsapp::WebhookSetupService
 
   def build_callback_url
     frontend_url = ENV.fetch('FRONTEND_URL', nil)
-    phone_number = @channel.phone_number
 
-    "#{frontend_url}/webhooks/whatsapp/#{phone_number}"
+    # Use unified webhook if global token is configured, otherwise per-number URL
+    global_token = GlobalConfigService.load('WHATSAPP_WEBHOOK_VERIFY_TOKEN', '')
+    if global_token.present?
+      "#{frontend_url}/webhooks/whatsapp"
+    else
+      "#{frontend_url}/webhooks/whatsapp/#{@channel.phone_number}"
+    end
+  end
+
+  def resolve_verify_token
+    # Prefer global unified token, fallback to per-channel token
+    global_token = GlobalConfigService.load('WHATSAPP_WEBHOOK_VERIFY_TOKEN', '')
+    return global_token if global_token.present?
+
+    @channel.provider_config['webhook_verify_token']
   end
 
   def phone_number_verified?
