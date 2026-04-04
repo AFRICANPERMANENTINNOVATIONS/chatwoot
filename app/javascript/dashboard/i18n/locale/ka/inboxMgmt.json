@@ -1115,7 +1115,7 @@
         "USER_MESSAGE": "გამარჯობა",
         "AGENT_MESSAGE": "სალამი"
       },
-      "BRANDING_TEXT": "მოძრავებულია Chatwoot-ის მიერ",
+      "BRANDING_TEXT": "Powered by PerfectCX",
       "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {
