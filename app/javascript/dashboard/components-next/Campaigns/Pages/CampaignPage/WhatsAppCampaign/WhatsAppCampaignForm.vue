@@ -220,6 +220,19 @@ watch(
       :template="selectedTemplate"
     />
 
+    <!-- Contact Variables Hint -->
+    <div
+      v-if="selectedTemplate"
+      class="p-3 rounded-lg border border-n-weak bg-n-alpha-black2"
+    >
+      <p class="mb-1 text-xs font-medium text-n-slate-11">
+        {{ t('WHATSAPP_TEMPLATES.PARSER.CONTACT_VARIABLES_HINT') }}
+      </p>
+      <p class="text-xs break-all text-n-slate-10">
+        {{ t('WHATSAPP_TEMPLATES.PARSER.CONTACT_VARIABLES_EXAMPLES') }}
+      </p>
+    </div>
+
     <div class="flex flex-col gap-1">
       <label for="audience" class="mb-0.5 text-sm font-medium text-n-slate-12">
         {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.LABEL') }}
@@ -251,7 +264,7 @@ watch(
         color="slate"
         type="button"
         :label="t('CAMPAIGN.WHATSAPP.CREATE.FORM.BUTTONS.CANCEL')"
-        class="w-full bg-n-alpha-2 text-n-blue-text hover:bg-n-alpha-3"
+        class="w-full bg-n-alpha-2 text-n-blue-11 hover:bg-n-alpha-3"
         @click="handleCancel"
       />
       <Button

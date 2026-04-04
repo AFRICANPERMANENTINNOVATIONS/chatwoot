@@ -1,9 +1,9 @@
 class Whatsapp::WebhookSetupService
-  def initialize(channel, waba_id, access_token)
+  def initialize(channel, waba_id = nil, access_token = nil)
     @channel = channel
-    @waba_id = waba_id
-    @access_token = access_token
-    @api_client = Whatsapp::FacebookApiClient.new(access_token)
+    @waba_id = waba_id || channel.provider_config['business_account_id']
+    @access_token = access_token || channel.provider_config['api_key']
+    @api_client = Whatsapp::FacebookApiClient.new(@access_token)
   end
 
   def perform
@@ -14,6 +14,11 @@ class Whatsapp::WebhookSetupService
     # 2. Phone number needs registration (pending provisioning state)
     register_phone_number if !phone_number_verified? || phone_number_needs_registration?
 
+    setup_webhook
+  end
+
+  def register_callback
+    validate_parameters!
     setup_webhook
   end
 
@@ -33,8 +38,6 @@ class Whatsapp::WebhookSetupService
     store_pin(pin)
   rescue StandardError => e
     Rails.logger.warn("[WHATSAPP] Phone registration failed but continuing: #{e.message}")
-    # Continue with webhook setup even if registration fails
-    # This is just a warning, not a blocking error
   end
 
   def fetch_or_create_pin
@@ -54,7 +57,7 @@ class Whatsapp::WebhookSetupService
 
   def setup_webhook
     callback_url = build_callback_url
-    verify_token = @channel.provider_config['webhook_verify_token']
+    verify_token = resolve_verify_token
 
     @api_client.subscribe_waba_webhook(@waba_id, callback_url, verify_token)
 
@@ -65,9 +68,22 @@ class Whatsapp::WebhookSetupService
 
   def build_callback_url
     frontend_url = ENV.fetch('FRONTEND_URL', nil)
-    phone_number = @channel.phone_number
 
-    "#{frontend_url}/webhooks/whatsapp/#{phone_number}"
+    # Use unified webhook if global token is configured, otherwise per-number URL
+    global_token = GlobalConfigService.load('WHATSAPP_WEBHOOK_VERIFY_TOKEN', '')
+    if global_token.present?
+      "#{frontend_url}/webhooks/whatsapp"
+    else
+      "#{frontend_url}/webhooks/whatsapp/#{@channel.phone_number}"
+    end
+  end
+
+  def resolve_verify_token
+    # Prefer global unified token, fallback to per-channel token
+    global_token = GlobalConfigService.load('WHATSAPP_WEBHOOK_VERIFY_TOKEN', '')
+    return global_token if global_token.present?
+
+    @channel.provider_config['webhook_verify_token']
   end
 
   def phone_number_verified?

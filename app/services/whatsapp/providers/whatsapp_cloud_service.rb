@@ -6,6 +6,8 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
       send_attachment_message(phone_number, message)
     elsif message.content_type == 'input_select'
       send_interactive_text_message(phone_number, message)
+    elsif whatsapp_interactive_message?(message)
+      send_whatsapp_interactive_message(phone_number, message)
     else
       send_text_message(phone_number, message)
     end
@@ -67,7 +69,7 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
   end
 
   def delete_csat_template(template_name = nil)
-    template_name ||= Whatsapp::CsatTemplateNameService.csat_template_name(whatsapp_channel.inbox.id)
+    template_name ||= CsatTemplateNameService.csat_template_name(whatsapp_channel.inbox.id)
     csat_template_service.delete_template(template_name)
   end
 
@@ -75,10 +77,8 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     csat_template_service.get_template_status(template_name)
   end
 
-  def media_url(media_id, phone_number_id = nil)
-    url = "#{api_base_path}/v13.0/#{media_id}"
-    url += "?phone_number_id=#{phone_number_id}" if phone_number_id
-    url
+  def media_url(media_id)
+    "#{api_base_path}/v13.0/#{media_id}"
   end
 
   private
@@ -91,7 +91,6 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     ENV.fetch('WHATSAPP_CLOUD_BASE_URL', 'https://graph.facebook.com')
   end
 
-  # TODO: See if we can unify the API versions and for both paths and make it consistent with out facebook app API versions
   def phone_id_path
     "#{api_base_path}/v13.0/#{whatsapp_channel.provider_config['phone_number_id']}"
   end
@@ -153,29 +152,6 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
       }
     }
 
-    # Enhanced template parameters structure
-    # Note: Legacy format support (simple parameter arrays) has been removed
-    # in favor of the enhanced component-based structure that supports
-    # headers, buttons, and authentication templates.
-    #
-    # Expected payload format from frontend:
-    # {
-    #   processed_params: {
-    #     body: { '1': 'John', '2': '123 Main St' },
-    #     header: {
-    #       media_url: 'https://...',
-    #       media_type: 'image',
-    #       media_name: 'filename.pdf' # Optional, for document templates only
-    #     },
-    #     buttons: [{ type: 'url', parameter: 'otp123456' }]
-    #   }
-    # }
-    # This gets transformed into WhatsApp API component format:
-    # [
-    #   { type: 'body', parameters: [...] },
-    #   { type: 'header', parameters: [...] },
-    #   { type: 'button', sub_type: 'url', parameters: [...] }
-    # ]
     template_body[:components] = template_info[:parameters] || []
 
     template_body
@@ -188,6 +164,22 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     {
       message_id: reply_to
     }
+  end
+
+  def send_whatsapp_interactive_message(phone_number, message)
+    response = HTTParty.post(
+      "#{phone_id_path}/messages",
+      headers: api_headers,
+      body: {
+        messaging_product: 'whatsapp',
+        context: whatsapp_reply_context(message),
+        to: phone_number,
+        type: 'interactive',
+        interactive: parse_interactive_json(message.content)
+      }.to_json
+    )
+
+    process_response(response, message)
   end
 
   def send_interactive_text_message(phone_number, message)

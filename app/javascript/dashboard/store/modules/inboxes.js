@@ -83,6 +83,14 @@ export const getters = {
         return false;
       }
 
+      // Filter out CSAT templates (customer_satisfaction_survey and its versions)
+      if (
+        template.name &&
+        template.name.startsWith('customer_satisfaction_survey')
+      ) {
+        return false;
+      }
+
       // Filter out interactive templates (LIST, PRODUCT, CATALOG), location templates, and call permission templates
       const hasUnsupportedComponents = template.components.some(
         component =>
@@ -343,6 +351,36 @@ export const actions = {
     } catch (error) {
       throw new Error(error);
     }
+  },
+  createCSATTemplate: async (_, { inboxId, template }) => {
+    const response = await InboxesAPI.createCSATTemplate(inboxId, template);
+    return response.data;
+  },
+  getCSATTemplateStatus: async (_, { inboxId }) => {
+    const response = await InboxesAPI.getCSATTemplateStatus(inboxId);
+    return response.data;
+  },
+  analyzeCSATTemplateUtility: async (_, { inboxId, template }) => {
+    const response = await InboxesAPI.analyzeCSATTemplateUtility(
+      inboxId,
+      template
+    );
+    return response.data;
+  },
+  getWhatsAppTemplates: async (_, { inboxId }) => {
+    const response = await InboxesAPI.getWhatsAppTemplates(inboxId);
+    return response.data;
+  },
+  createWhatsAppTemplate: async (_, { inboxId, template }) => {
+    const response = await InboxesAPI.createWhatsAppTemplate(inboxId, template);
+    return response.data;
+  },
+  deleteWhatsAppTemplate: async (_, { inboxId, templateName }) => {
+    const response = await InboxesAPI.deleteWhatsAppTemplate(
+      inboxId,
+      templateName
+    );
+    return response.data;
   },
 };
 

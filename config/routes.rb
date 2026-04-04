@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resource :slack_uploads, only: [:show]
   end
 
+  get '/health', to: 'health#show'
   get '/api', to: 'api#index'
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
@@ -55,6 +56,7 @@ Rails.application.routes.draw do
             post :bulk_create, on: :collection
           end
           namespace :captain do
+            resource :preferences, only: [:show, :update]
             resources :assistants do
               member do
                 post :playground
@@ -72,6 +74,13 @@ Rails.application.routes.draw do
             end
             resources :custom_tools
             resources :documents, only: [:index, :show, :create, :destroy]
+            resource :tasks, only: [], controller: 'tasks' do
+              post :rewrite
+              post :summarize
+              post :reply_suggestion
+              post :label_suggestion
+              post :follow_up
+            end
           end
           resource :saml_settings, only: [:show, :create, :update, :destroy]
           resources :agent_bots, only: [:index, :create, :show, :update, :destroy] do
@@ -188,6 +197,9 @@ Rails.application.routes.draw do
               get :metrics
               get :download
             end
+            member do
+              patch :update if ChatwootApp.enterprise?
+            end
           end
           resources :applied_slas, only: [:index] do
             collection do
@@ -206,13 +218,26 @@ Rails.application.routes.draw do
             delete :avatar, on: :member
             post :sync_templates, on: :member
             get :health, on: :member
+            post :register_webhook, on: :member
             if ChatwootApp.enterprise?
               resource :conference, only: %i[create destroy], controller: 'conference' do
                 get :token, on: :member
               end
             end
 
-            resource :csat_template, only: [:show, :create], controller: 'inbox_csat_templates'
+            resource :csat_template, only: [:show, :create], controller: 'inbox_csat_templates' do
+              post :analyze, on: :collection
+            end
+
+            resources :whatsapp_templates,
+                      only: [:index, :create, :show, :destroy],
+                      controller: 'inbox_whatsapp_templates',
+                      param: :template_name
+          end
+
+          # PerfectCX subscription management
+          resource :subscription, only: [:show] do
+            get :plans, on: :collection
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do
@@ -334,7 +359,9 @@ Rails.application.routes.draw do
               post :send_instructions
               get :ssl_status
             end
-            resources :categories
+            resources :categories do
+              post :reorder, on: :collection
+            end
             resources :articles do
               post :reorder, on: :collection
             end
@@ -417,6 +444,7 @@ Rails.application.routes.draw do
               get :team
               get :inbox
               get :label
+              get :channel
             end
           end
           resources :reports, only: [:index] do
@@ -428,8 +456,12 @@ Rails.application.routes.draw do
               get :labels
               get :teams
               get :conversations
+              get :conversations_summary
               get :conversation_traffic
               get :bot_metrics
+              get :inbox_label_matrix
+              get :first_response_time_distribution
+              get :outgoing_messages_count
             end
           end
           resource :year_in_review, only: [:show]
@@ -485,6 +517,7 @@ Rails.application.routes.draw do
               delete :destroy
             end
           end
+          resources :email_channel_migrations, only: [:create]
         end
       end
     end
@@ -544,9 +577,15 @@ Rails.application.routes.draw do
   post 'webhooks/sms/:phone_number', to: 'webhooks/sms#process_payload'
   get 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#verify'
   post 'webhooks/whatsapp/:phone_number', to: 'webhooks/whatsapp#process_payload'
+  # Unified WhatsApp webhook — single URL for all numbers, routes via payload metadata
+  get 'webhooks/whatsapp', to: 'webhooks/whatsapp#verify_unified'
+  post 'webhooks/whatsapp', to: 'webhooks/whatsapp#process_unified_payload'
   get 'webhooks/instagram', to: 'webhooks/instagram#verify'
   post 'webhooks/instagram', to: 'webhooks/instagram#events'
   post 'webhooks/tiktok', to: 'webhooks/tiktok#events'
+  post 'webhooks/shopify', to: 'webhooks/shopify#events'
+  # PerfectCX payment webhook — receives payment success/failure from payment provider
+  post 'webhooks/payment', to: 'webhooks/payment#process_payload'
 
   namespace :twitter do
     resource :callback, only: [:show]

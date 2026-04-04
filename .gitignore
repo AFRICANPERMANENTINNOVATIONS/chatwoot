@@ -29,7 +29,7 @@ master.key
 
 # Ignore env files
 .env
-
+.env.prod
 public/uploads
 public/packs*
 public/assets/administrate*
@@ -94,6 +94,8 @@ yarn-debug.log*
 .vscode
 .claude/settings.local.json
 .cursor
+.codex/
+.claude/
 CLAUDE.local.md
 
 # Histoire deployment
@@ -101,3 +103,4 @@ CLAUDE.local.md
 .histoire
 .pnpm-store/*
 local/
+Procfile.worktree

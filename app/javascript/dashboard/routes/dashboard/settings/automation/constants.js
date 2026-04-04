@@ -117,6 +117,10 @@ export const AUTOMATIONS = {
         name: 'OPEN_CONVERSATION',
       },
       {
+        key: 'pending_conversation',
+        name: 'PENDING_CONVERSATION',
+      },
+      {
         key: 'resolve_conversation',
         name: 'RESOLVE_CONVERSATION',
       },
@@ -127,6 +131,22 @@ export const AUTOMATIONS = {
       {
         key: 'send_attachment',
         name: 'SEND_ATTACHMENT',
+      },
+      {
+        key: 'send_interactive_message',
+        name: 'SEND_INTERACTIVE_MESSAGE',
+      },
+      {
+        key: 'send_interactive_list',
+        name: 'SEND_INTERACTIVE_LIST',
+      },
+      {
+        key: 'send_interactive_buttons',
+        name: 'SEND_INTERACTIVE_BUTTONS',
+      },
+      {
+        key: 'send_interactive_cta',
+        name: 'SEND_INTERACTIVE_CTA',
       },
     ],
   },
@@ -233,6 +253,10 @@ export const AUTOMATIONS = {
         name: 'SNOOZE_CONVERSATION',
       },
       {
+        key: 'pending_conversation',
+        name: 'PENDING_CONVERSATION',
+      },
+      {
         key: 'resolve_conversation',
         name: 'RESOLVE_CONVERSATION',
       },
@@ -243,6 +267,22 @@ export const AUTOMATIONS = {
       {
         key: 'send_attachment',
         name: 'SEND_ATTACHMENT',
+      },
+      {
+        key: 'send_interactive_message',
+        name: 'SEND_INTERACTIVE_MESSAGE',
+      },
+      {
+        key: 'send_interactive_list',
+        name: 'SEND_INTERACTIVE_LIST',
+      },
+      {
+        key: 'send_interactive_buttons',
+        name: 'SEND_INTERACTIVE_BUTTONS',
+      },
+      {
+        key: 'send_interactive_cta',
+        name: 'SEND_INTERACTIVE_CTA',
       },
     ],
   },
@@ -361,6 +401,10 @@ export const AUTOMATIONS = {
         name: 'SNOOZE_CONVERSATION',
       },
       {
+        key: 'pending_conversation',
+        name: 'PENDING_CONVERSATION',
+      },
+      {
         key: 'resolve_conversation',
         name: 'RESOLVE_CONVERSATION',
       },
@@ -371,6 +415,22 @@ export const AUTOMATIONS = {
       {
         key: 'send_attachment',
         name: 'SEND_ATTACHMENT',
+      },
+      {
+        key: 'send_interactive_message',
+        name: 'SEND_INTERACTIVE_MESSAGE',
+      },
+      {
+        key: 'send_interactive_list',
+        name: 'SEND_INTERACTIVE_LIST',
+      },
+      {
+        key: 'send_interactive_buttons',
+        name: 'SEND_INTERACTIVE_BUTTONS',
+      },
+      {
+        key: 'send_interactive_cta',
+        name: 'SEND_INTERACTIVE_CTA',
       },
     ],
   },
@@ -483,12 +543,32 @@ export const AUTOMATIONS = {
         name: 'SNOOZE_CONVERSATION',
       },
       {
+        key: 'pending_conversation',
+        name: 'PENDING_CONVERSATION',
+      },
+      {
         key: 'send_webhook_event',
         name: 'SEND_WEBHOOK_EVENT',
       },
       {
         key: 'send_attachment',
         name: 'SEND_ATTACHMENT',
+      },
+      {
+        key: 'send_interactive_message',
+        name: 'SEND_INTERACTIVE_MESSAGE',
+      },
+      {
+        key: 'send_interactive_list',
+        name: 'SEND_INTERACTIVE_LIST',
+      },
+      {
+        key: 'send_interactive_buttons',
+        name: 'SEND_INTERACTIVE_BUTTONS',
+      },
+      {
+        key: 'send_interactive_cta',
+        name: 'SEND_INTERACTIVE_CTA',
       },
     ],
   },
@@ -590,6 +670,22 @@ export const AUTOMATIONS = {
         key: 'send_attachment',
         name: 'SEND_ATTACHMENT',
       },
+      {
+        key: 'send_interactive_message',
+        name: 'SEND_INTERACTIVE_MESSAGE',
+      },
+      {
+        key: 'send_interactive_list',
+        name: 'SEND_INTERACTIVE_LIST',
+      },
+      {
+        key: 'send_interactive_buttons',
+        name: 'SEND_INTERACTIVE_BUTTONS',
+      },
+      {
+        key: 'send_interactive_cta',
+        name: 'SEND_INTERACTIVE_CTA',
+      },
     ],
   },
 };
@@ -669,6 +765,11 @@ export const AUTOMATION_ACTION_TYPES = [
     inputType: null,
   },
   {
+    key: 'pending_conversation',
+    label: 'PENDING_CONVERSATION',
+    inputType: null,
+  },
+  {
     key: 'send_webhook_event',
     label: 'SEND_WEBHOOK_EVENT',
     inputType: 'url',
@@ -681,6 +782,26 @@ export const AUTOMATION_ACTION_TYPES = [
   {
     key: 'send_message',
     label: 'SEND_MESSAGE',
+    inputType: 'textarea',
+  },
+  {
+    key: 'send_interactive_message',
+    label: 'SEND_INTERACTIVE_MESSAGE',
+    inputType: 'textarea',
+  },
+  {
+    key: 'send_interactive_list',
+    label: 'SEND_INTERACTIVE_LIST',
+    inputType: 'textarea',
+  },
+  {
+    key: 'send_interactive_buttons',
+    label: 'SEND_INTERACTIVE_BUTTONS',
+    inputType: 'textarea',
+  },
+  {
+    key: 'send_interactive_cta',
+    label: 'SEND_INTERACTIVE_CTA',
     inputType: 'textarea',
   },
   {
