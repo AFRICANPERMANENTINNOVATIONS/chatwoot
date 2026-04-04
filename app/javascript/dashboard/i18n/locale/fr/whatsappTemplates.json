@@ -43,7 +43,7 @@
       "DOCUMENT_NAME_PLACEHOLDER": "Saisissez le nom du document (ex : Facture_2025.pdf)",
       "BUTTON_PARAMETER": "Saisissez le paramètre du bouton",
       "CONTACT_VARIABLES_HINT": "Vous pouvez utiliser les variables de contact pour la personnalisation :",
-      "CONTACT_VARIABLES_EXAMPLES": "{{ contact.name }}, {{ contact.first_name }}, {{ contact.last_name }}, {{ contact.email }}, {{ contact.phone_number }}, {{ contact.custom_attribute.cle_attribut }}"
+      "CONTACT_VARIABLES_EXAMPLES": "{'{'}contact.name{'}'}, {'{'}contact.first_name{'}'}, {'{'}contact.last_name{'}'}, {'{'}contact.email{'}'}, {'{'}contact.phone_number{'}'}, {'{'}contact.custom_attribute.cle_attribut{'}'}"
     }
   }
 }
