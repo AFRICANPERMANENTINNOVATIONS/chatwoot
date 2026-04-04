@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
     tags:
       - v*
   workflow_dispatch:
@@ -41,8 +42,11 @@ jobs:
           tags: |
             # tag with version on push tag (v1.0.0 → 1.0.0)
             type=semver,pattern={{version}}
-            # tag with "latest" on push to main/master
+            type=semver,pattern={{major}}.{{minor}}
+            # tag with "latest" on push to main
             type=raw,value=latest,enable={{is_default_branch}}
+            # tag with "develop" on push to develop
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
             # tag with branch name
             type=ref,event=branch
             # tag with short sha
