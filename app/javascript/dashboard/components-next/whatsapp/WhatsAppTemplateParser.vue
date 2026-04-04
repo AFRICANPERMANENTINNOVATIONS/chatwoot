@@ -84,11 +84,6 @@ const renderedTemplate = computed(() => {
   return replaceTemplateVariables(bodyText.value, processedParams.value);
 });
 
-// Escape leftover {{n}} so Vue i18n does not try to parse them as nested placeholders
-const safeRenderedTemplate = computed(() => {
-  return renderedTemplate.value.replace(/\{\{/g, "{'{{'}");
-});
-
 const isFormInvalid = computed(() => {
   if (!hasVariables.value && !hasMediaHeader.value) return false;
 
@@ -209,7 +204,7 @@ defineExpose({
       <div class="flex flex-col gap-2">
         <div class="rounded-md">
           <div class="text-sm whitespace-pre-wrap text-n-slate-12">
-            {{ safeRenderedTemplate }}
+            {{ renderedTemplate }}
           </div>
         </div>
       </div>
