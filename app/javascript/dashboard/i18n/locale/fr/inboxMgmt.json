@@ -663,7 +663,24 @@
         "EXAMPLES_HEADER": "Exemples de variables d'en-tête (requis par Meta)",
         "EXAMPLES_BODY": "Exemples de variables du corps (requis par Meta)",
         "EXAMPLE_PLACEHOLDER": "Valeur d'exemple pour {variable}",
-        "EXAMPLES_HELP": "Meta exige des valeurs d'exemple pour examiner votre modèle. Ce sont des exemples uniquement, ils ne seront pas envoyés aux contacts."
+        "EXAMPLES_HELP": "Meta exige des valeurs d'exemple pour examiner votre modèle. Ce sont des exemples uniquement, ils ne seront pas envoyés aux contacts.",
+        "BUTTONS": {
+          "TYPE_LABEL": "Boutons (optionnel)",
+          "QUICK_REPLY_HINT": "Les boutons de réponse rapide permettent de répondre en un tap. Max 10 boutons, 25 caractères chacun.",
+          "CTA_HINT": "Les boutons d'appel à l'action permettent de visiter une URL ou d'appeler un numéro. Max 2 URL + 1 téléphone.",
+          "BUTTON_N": "Bouton {n}",
+          "SUBTYPE_LABEL": "Type de bouton",
+          "TEXT_LABEL": "Texte du bouton",
+          "TEXT_PLACEHOLDER": "Libellé du bouton (25 car. max)",
+          "TEXT_MAX": "Le texte du bouton ne doit pas dépasser 25 caractères.",
+          "URL_LABEL": "URL",
+          "URL_PLACEHOLDER": "https://example.com/page",
+          "URL_EXAMPLE_LABEL": "Exemple d'URL (requis pour URL dynamique)",
+          "URL_EXAMPLE_PLACEHOLDER": "https://example.com/commande/12345",
+          "PHONE_LABEL": "Numéro de téléphone",
+          "PHONE_PLACEHOLDER": "+225XXXXXXXXXX",
+          "ADD": "Ajouter un bouton"
+        }
       },
       "DELETE": {
         "TITLE": "Supprimer le modèle",

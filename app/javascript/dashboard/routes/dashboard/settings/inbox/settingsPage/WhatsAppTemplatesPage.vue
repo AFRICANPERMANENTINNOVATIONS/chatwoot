@@ -34,6 +34,8 @@ const form = reactive({
   headerMediaFileName: '',
   bodyText: '',
   footerText: '',
+  buttonType: 'NONE',
+  buttons: [],
 });
 
 const headerExamples = ref({});
@@ -70,6 +72,55 @@ const languageOptions = [
   { value: 'ru', label: 'Russian' },
   { value: 'nl', label: 'Dutch' },
 ];
+
+const buttonTypeOptions = [
+  { value: 'NONE', label: 'None' },
+  { value: 'QUICK_REPLY', label: 'Quick Reply' },
+  { value: 'CTA', label: 'Call to Action' },
+];
+
+const ctaButtonSubtypeOptions = [
+  { value: 'URL', label: 'URL' },
+  { value: 'PHONE_NUMBER', label: 'Phone Number' },
+];
+
+const MAX_QUICK_REPLY = 10;
+const MAX_URL_BUTTONS = 2;
+const MAX_PHONE_BUTTONS = 1;
+
+const addButton = () => {
+  if (
+    form.buttonType === 'QUICK_REPLY' &&
+    form.buttons.length < MAX_QUICK_REPLY
+  ) {
+    form.buttons.push({ type: 'QUICK_REPLY', text: '' });
+  } else if (form.buttonType === 'CTA' && form.buttons.length < 3) {
+    form.buttons.push({
+      type: 'URL',
+      text: '',
+      url: '',
+      phone_number: '',
+      urlExample: '',
+    });
+  }
+};
+
+const removeButton = index => {
+  form.buttons.splice(index, 1);
+};
+
+const canAddButton = computed(() => {
+  if (form.buttonType === 'QUICK_REPLY')
+    return form.buttons.length < MAX_QUICK_REPLY;
+  if (form.buttonType === 'CTA') {
+    const urlCount = form.buttons.filter(b => b.type === 'URL').length;
+    const phoneCount = form.buttons.filter(
+      b => b.type === 'PHONE_NUMBER'
+    ).length;
+    return urlCount < MAX_URL_BUTTONS || phoneCount < MAX_PHONE_BUTTONS;
+  }
+  return false;
+});
 
 const MEDIA_ACCEPT = {
   IMAGE: 'image/jpeg,image/png',
@@ -128,6 +179,13 @@ watch(
   }
 );
 
+watch(
+  () => form.buttonType,
+  () => {
+    form.buttons = [];
+  }
+);
+
 const allExamplesFilled = computed(() => {
   const headerFilled = headerVariables.value.every(v =>
     headerExamples.value[v]?.trim()
@@ -142,12 +200,35 @@ const hasVariables = computed(
   () => headerVariables.value.length > 0 || bodyVariables.value.length > 0
 );
 
+const buttonsValid = computed(() => {
+  if (form.buttonType === 'NONE') return true;
+  if (form.buttons.length === 0) return false;
+  return form.buttons.every(btn => {
+    if (!btn.text?.trim() && btn.type !== 'PHONE_NUMBER') return false;
+    if (btn.type === 'QUICK_REPLY')
+      return btn.text.trim().length > 0 && btn.text.length <= 25;
+    if (btn.type === 'URL')
+      return (
+        btn.text.trim().length > 0 && btn.text.length <= 25 && btn.url?.trim()
+      );
+    if (btn.type === 'PHONE_NUMBER')
+      return (
+        btn.text.trim().length > 0 &&
+        btn.text.length <= 25 &&
+        btn.phone_number?.trim()
+      );
+    return true;
+  });
+});
+
 const isFormValid = computed(() => {
   const nameValid = form.name.match(/^[a-z0-9_]+$/);
   const bodyValid = form.bodyText.trim().length > 0;
   const examplesValid = !hasVariables.value || allExamplesFilled.value;
   const mediaValid = !isMediaHeader.value || form.headerMediaUrl.trim();
-  return nameValid && bodyValid && examplesValid && mediaValid;
+  return (
+    nameValid && bodyValid && examplesValid && mediaValid && buttonsValid.value
+  );
 });
 
 const statusConfig = {
@@ -235,6 +316,30 @@ const buildComponents = () => {
     components.push({ type: 'FOOTER', text: form.footerText });
   }
 
+  if (form.buttonType !== 'NONE' && form.buttons.length > 0) {
+    const buttons = form.buttons.map(btn => {
+      if (btn.type === 'QUICK_REPLY') {
+        return { type: 'QUICK_REPLY', text: btn.text };
+      }
+      if (btn.type === 'URL') {
+        const urlBtn = { type: 'URL', text: btn.text, url: btn.url };
+        if (btn.url.includes('{{1}}') && btn.urlExample?.trim()) {
+          urlBtn.example = [btn.urlExample];
+        }
+        return urlBtn;
+      }
+      if (btn.type === 'PHONE_NUMBER') {
+        return {
+          type: 'PHONE_NUMBER',
+          text: btn.text,
+          phone_number: btn.phone_number,
+        };
+      }
+      return btn;
+    });
+    components.push({ type: 'BUTTONS', buttons });
+  }
+
   return components;
 };
 
@@ -248,6 +353,8 @@ const resetForm = () => {
   form.headerMediaFileName = '';
   form.bodyText = '';
   form.footerText = '';
+  form.buttonType = 'NONE';
+  form.buttons = [];
   headerExamples.value = {};
   bodyExamples.value = {};
   if (fileInputRef.value) fileInputRef.value.value = '';
@@ -578,6 +685,156 @@ onMounted(fetchTemplates);
         "
       />
 
+      <!-- Buttons -->
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.TYPE_LABEL') }}
+        </label>
+        <ComboBox
+          v-model="form.buttonType"
+          :options="buttonTypeOptions"
+          class="[&>div>button]:bg-n-alpha-black2"
+        />
+      </div>
+
+      <div
+        v-if="form.buttonType !== 'NONE'"
+        class="flex flex-col gap-3 p-3 rounded-lg bg-n-alpha-black2 border border-n-weak"
+      >
+        <p class="text-xs text-n-slate-11">
+          {{
+            form.buttonType === 'QUICK_REPLY'
+              ? t(
+                  'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.QUICK_REPLY_HINT'
+                )
+              : t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.CTA_HINT')
+          }}
+        </p>
+
+        <!-- Button list -->
+        <div
+          v-for="(btn, idx) in form.buttons"
+          :key="`btn-${idx}`"
+          class="flex flex-col gap-2 p-3 rounded-lg bg-n-solid-2 border border-n-weak"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-n-slate-11">
+              {{
+                t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.BUTTON_N', {
+                  n: idx + 1,
+                })
+              }}
+            </span>
+            <NextButton
+              variant="faded"
+              color="ruby"
+              icon="i-lucide-x"
+              size="xs"
+              @click="removeButton(idx)"
+            />
+          </div>
+
+          <!-- CTA subtype selector -->
+          <div v-if="form.buttonType === 'CTA'" class="flex flex-col gap-1">
+            <label class="text-xs text-n-slate-11">
+              {{
+                t(
+                  'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.SUBTYPE_LABEL'
+                )
+              }}
+            </label>
+            <ComboBox
+              :model-value="btn.type"
+              :options="ctaButtonSubtypeOptions"
+              class="[&>div>button]:bg-n-alpha-black2"
+              @update:model-value="
+                val => {
+                  btn.type = val;
+                  btn.url = '';
+                  btn.phone_number = '';
+                  btn.urlExample = '';
+                }
+              "
+            />
+          </div>
+
+          <Input
+            v-model="btn.text"
+            :label="
+              t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.TEXT_LABEL')
+            "
+            :placeholder="
+              t(
+                'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.TEXT_PLACEHOLDER'
+              )
+            "
+            :message="
+              btn.text.length > 25
+                ? t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.TEXT_MAX')
+                : ''
+            "
+            :message-type="btn.text.length > 25 ? 'error' : 'info'"
+          />
+
+          <!-- URL fields -->
+          <template v-if="btn.type === 'URL'">
+            <Input
+              v-model="btn.url"
+              :label="
+                t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.URL_LABEL')
+              "
+              :placeholder="
+                t(
+                  'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.URL_PLACEHOLDER'
+                )
+              "
+              type="url"
+            />
+            <Input
+              v-if="btn.url.includes('{' + '{1}}')"
+              v-model="btn.urlExample"
+              :label="
+                t(
+                  'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.URL_EXAMPLE_LABEL'
+                )
+              "
+              :placeholder="
+                t(
+                  'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.URL_EXAMPLE_PLACEHOLDER'
+                )
+              "
+              type="url"
+            />
+          </template>
+
+          <!-- Phone fields -->
+          <Input
+            v-if="btn.type === 'PHONE_NUMBER'"
+            v-model="btn.phone_number"
+            :label="
+              t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.PHONE_LABEL')
+            "
+            :placeholder="
+              t(
+                'INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.PHONE_PLACEHOLDER'
+              )
+            "
+            type="tel"
+          />
+        </div>
+
+        <!-- Add button -->
+        <NextButton
+          v-if="canAddButton"
+          variant="faded"
+          color="slate"
+          icon="i-lucide-plus"
+          :label="t('INBOX_MGMT.WHATSAPP_TEMPLATE_MGMT.CREATE.BUTTONS.ADD')"
+          size="sm"
+          @click="addButton"
+        />
+      </div>
+
       <div class="flex gap-2 justify-end">
         <NextButton
           variant="faded"
@@ -655,6 +912,30 @@ onMounted(fetchTemplates);
           >
             {{ template.components.find(c => c.type === 'BODY').text }}
           </p>
+          <div
+            v-if="template.components?.find(c => c.type === 'BUTTONS')"
+            class="flex items-center gap-1.5 mt-1 flex-wrap"
+          >
+            <span
+              v-for="(btn, bIdx) in template.components.find(
+                c => c.type === 'BUTTONS'
+              ).buttons"
+              :key="`btn-${bIdx}`"
+              class="px-2 py-0.5 text-xs rounded-full bg-n-alpha-3 text-n-slate-11"
+            >
+              <Icon
+                :icon="
+                  btn.type === 'URL'
+                    ? 'i-lucide-external-link'
+                    : btn.type === 'PHONE_NUMBER'
+                      ? 'i-lucide-phone'
+                      : 'i-lucide-reply'
+                "
+                class="size-3 inline-block mr-0.5 -mt-0.5"
+              />
+              {{ btn.text }}
+            </span>
+          </div>
         </div>
         <NextButton
           variant="faded"
