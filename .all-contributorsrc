@@ -19,7 +19,7 @@
         "maintenance",
         "review"
       ]
-    }
+    },
     {
       "login": "sojan-official",
       "name": "Sojan Jose",
@@ -67,13 +67,13 @@
       "profile": "https://github.com/manojmj92",
       "contributions": [
         "bug",
-        "code",
+        "code"
       ]
     }
   ],
   "contributorsPerLine": 7,
-  "projectName": "chatwoot",
-  "projectOwner": "chatwoot",
+  "projectName": "perfectcx",
+  "projectOwner": "perfectcx",
   "repoType": "github",
   "repoHost": "https://github.com"
 }

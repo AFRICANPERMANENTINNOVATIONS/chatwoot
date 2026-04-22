@@ -1115,7 +1115,7 @@
         "USER_MESSAGE": "Kumusta",
         "AGENT_MESSAGE": "Kumusta"
       },
-      "BRANDING_TEXT": "Pinapagana ng Chatwoot",
+      "BRANDING_TEXT": "Powered by PerfectCX",
       "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {

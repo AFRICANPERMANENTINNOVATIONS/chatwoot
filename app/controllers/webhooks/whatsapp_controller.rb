@@ -46,9 +46,8 @@ class Webhooks::WhatsappController < ActionController::API
     return true if unified_token.present? && token == unified_token
 
     # Fallback: check if any channel has this verify token
-    Channel::Whatsapp.where(provider: 'whatsapp_cloud').exists?(
-      "provider_config->>'webhook_verify_token' = ?", token
-    )
+    Channel::Whatsapp.where(provider: 'whatsapp_cloud')
+                     .exists?(["provider_config->>'webhook_verify_token' = ?", token])
   end
 
   def inactive_whatsapp_number?

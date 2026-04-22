@@ -1115,7 +1115,7 @@
         "USER_MESSAGE": "ہیلو",
         "AGENT_MESSAGE": "سلام"
       },
-      "BRANDING_TEXT": "چالو کردہ Chatwoot",
+      "BRANDING_TEXT": "Powered by PerfectCX",
       "SCRIPT_SETTINGS": "\n      window.chatwootSettings = {options};"
     },
     "EMAIL_PROVIDERS": {

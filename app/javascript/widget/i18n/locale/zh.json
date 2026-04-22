@@ -147,7 +147,7 @@
       "CONTENT": "分享了一个网址"
     }
   },
-  "FOOTER_REPLY_TO": {
-    "REPLY_TO": "回复："
-  }
+  "POWERED_BY": "Powered by PerfectCX",
+  "EMAIL_PLACEHOLDER": "Please enter your email",
+  "CHAT_PLACEHOLDER": "Type your message"
 }
