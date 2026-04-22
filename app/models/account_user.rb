@@ -6,6 +6,7 @@
 #  active_at                :datetime
 #  auto_offline             :boolean          default(TRUE), not null
 #  availability             :integer          default("online"), not null
+#  disabled_at              :datetime
 #  role                     :integer          default("agent")
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
@@ -34,6 +35,9 @@ class AccountUser < ApplicationRecord
   enum role: { agent: 0, administrator: 1 }
   enum availability: { online: 0, offline: 1, busy: 2 }
 
+  scope :active, -> { where(disabled_at: nil) }
+  scope :disabled, -> { where.not(disabled_at: nil) }
+
   accepts_nested_attributes_for :account
 
   after_create_commit :notify_creation, :create_notification_setting
@@ -41,6 +45,22 @@ class AccountUser < ApplicationRecord
   after_save :update_presence_in_redis, if: :saved_change_to_availability?
 
   validates :user_id, uniqueness: { scope: :account_id }
+
+  def disabled?
+    disabled_at.present?
+  end
+
+  def disable!
+    return if disabled?
+
+    update!(disabled_at: Time.current)
+  end
+
+  def enable!
+    return unless disabled?
+
+    update!(disabled_at: nil)
+  end
 
   def create_notification_setting
     setting = user.notification_settings.new(account_id: account.id)
