@@ -663,7 +663,24 @@
         "EXAMPLES_HEADER": "Header variable examples (required by Meta)",
         "EXAMPLES_BODY": "Body variable examples (required by Meta)",
         "EXAMPLE_PLACEHOLDER": "Example value for {variable}",
-        "EXAMPLES_HELP": "Meta requires example values to review your template. These are samples only and won't be sent to contacts."
+        "EXAMPLES_HELP": "Meta requires example values to review your template. These are samples only and won't be sent to contacts.",
+        "BUTTONS": {
+          "TYPE_LABEL": "Buttons (optional)",
+          "QUICK_REPLY_HINT": "Quick reply buttons let recipients tap to respond. Max 10 buttons, 25 characters each.",
+          "CTA_HINT": "Call-to-action buttons let recipients visit a URL or call a phone number. Max 2 URL + 1 phone.",
+          "BUTTON_N": "Button {n}",
+          "SUBTYPE_LABEL": "Button type",
+          "TEXT_LABEL": "Button text",
+          "TEXT_PLACEHOLDER": "Button label (max 25 chars)",
+          "TEXT_MAX": "Button text must be 25 characters or less.",
+          "URL_LABEL": "URL",
+          "URL_PLACEHOLDER": "https://example.com/page",
+          "URL_EXAMPLE_LABEL": "URL example (required for dynamic URL)",
+          "URL_EXAMPLE_PLACEHOLDER": "https://example.com/order/12345",
+          "PHONE_LABEL": "Phone number",
+          "PHONE_PLACEHOLDER": "+225XXXXXXXXXX",
+          "ADD": "Add button"
+        }
       },
       "DELETE": {
         "TITLE": "Delete Template",

@@ -9,6 +9,8 @@ module Enterprise::Internal::CheckNewVersionsJob
 
   def update_plan_info
     return if @instance_info.blank?
+    # PerfectCX: skip plan/quantity sync to preserve self-hosted limits
+    return if ENV['SKIP_HUB_PLAN_SYNC'].present?
 
     update_installation_config(key: 'INSTALLATION_PRICING_PLAN', value: @instance_info['plan'])
     update_installation_config(key: 'INSTALLATION_PRICING_PLAN_QUANTITY', value: @instance_info['plan_quantity'])
