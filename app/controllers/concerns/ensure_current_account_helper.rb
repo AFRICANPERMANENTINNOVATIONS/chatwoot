@@ -22,6 +22,7 @@ module EnsureCurrentAccountHelper
     @current_account_user = account.account_users.find_by(user_id: current_user.id)
     Current.account_user = @current_account_user
     render_unauthorized('You are not authorized to access this account') unless @current_account_user
+    render_unauthorized('Your access to this account has been disabled. Contact your administrator.') if @current_account_user&.disabled?
   end
 
   def account_accessible_for_bot?(account)
