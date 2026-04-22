@@ -191,6 +191,18 @@ class Account < ApplicationRecord
     }
   end
 
+  # Virtual attribute stored under custom_attributes. Used by Super Admin
+  # to assign a PerfectCX plan tier; Accounts::PlanApplierService does the
+  # actual limits/features work.
+  def plan_name
+    custom_attributes&.dig('plan_name')
+  end
+
+  def plan_name=(value)
+    value = value.to_s.presence
+    self.custom_attributes = (custom_attributes || {}).merge('plan_name' => value)
+  end
+
   def locale_english_name
     # the locale can also be something like pt_BR, en_US, fr_FR, etc.
     # the format is `<locale_code>_<country_code>`
