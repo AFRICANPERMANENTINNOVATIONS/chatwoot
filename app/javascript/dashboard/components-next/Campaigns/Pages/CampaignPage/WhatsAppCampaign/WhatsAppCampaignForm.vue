@@ -30,6 +30,8 @@ const initialState = {
   templateId: null,
   scheduledAt: null,
   selectedAudience: [],
+  batchSize: null,
+  batchIntervalMinutes: null,
 };
 
 const state = reactive({ ...initialState });
@@ -139,6 +141,16 @@ const prepareCampaignDetails = () => {
     processed_params: parserData?.processedParams || {},
   };
 
+  const batchSize = Number(state.batchSize) || 0;
+  const batchIntervalMinutes = Number(state.batchIntervalMinutes) || 0;
+  const triggerRules =
+    batchSize > 0
+      ? {
+          batch_size: batchSize,
+          batch_interval_minutes: batchIntervalMinutes,
+        }
+      : {};
+
   return {
     title: state.title,
     message: templateContent,
@@ -149,6 +161,7 @@ const prepareCampaignDetails = () => {
       id,
       type: 'Label',
     })),
+    trigger_rules: triggerRules,
   };
 };
 
@@ -257,6 +270,35 @@ watch(
       :message="formErrors.scheduledAt"
       :message-type="formErrors.scheduledAt ? 'error' : 'info'"
     />
+
+    <div class="p-3 rounded-lg border border-n-weak bg-n-alpha-black2">
+      <p class="mb-2 text-sm font-medium text-n-slate-12">
+        {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.BATCH.TITLE') }}
+      </p>
+      <p class="mb-3 text-xs text-n-slate-11">
+        {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.BATCH.HINT') }}
+      </p>
+      <div class="grid grid-cols-2 gap-3">
+        <Input
+          v-model="state.batchSize"
+          type="number"
+          min="0"
+          :label="t('CAMPAIGN.WHATSAPP.CREATE.FORM.BATCH.SIZE.LABEL')"
+          :placeholder="
+            t('CAMPAIGN.WHATSAPP.CREATE.FORM.BATCH.SIZE.PLACEHOLDER')
+          "
+        />
+        <Input
+          v-model="state.batchIntervalMinutes"
+          type="number"
+          min="0"
+          :label="t('CAMPAIGN.WHATSAPP.CREATE.FORM.BATCH.INTERVAL.LABEL')"
+          :placeholder="
+            t('CAMPAIGN.WHATSAPP.CREATE.FORM.BATCH.INTERVAL.PLACEHOLDER')
+          "
+        />
+      </div>
+    </div>
 
     <div class="flex gap-3 justify-between items-center w-full">
       <Button
