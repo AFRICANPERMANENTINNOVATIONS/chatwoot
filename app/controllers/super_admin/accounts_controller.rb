@@ -1,11 +1,15 @@
 class SuperAdmin::AccountsController < SuperAdmin::ApplicationController
-  # Overwrite any of the RESTful controller actions to implement custom behavior
-  # For example, you may want to send an email after a foo is updated.
-  #
-  # def update
-  #   super
-  #   send_foo_updated_email(requested_resource)
-  # end
+  # After the default Administrate update saves the resource (including the
+  # plan_name we wrote into custom_attributes), apply the plan so limits,
+  # features, and surplus/reserve reconciliation are in sync.
+  def update
+    super
+    return unless plan_name_param.present? && PerfectCX::Plans.exists?(plan_name_param)
+
+    Accounts::PlanApplierService.new(account: requested_resource, plan_name: plan_name_param).perform
+  rescue Accounts::PlanApplierService::UnknownPlanError => e
+    Rails.logger.warn("[PlanApplierService] #{e.message}")
+  end
 
   # Override this method to specify custom lookup behavior.
   # This will be used to set the resource for the `show`, `edit`, and `update`
@@ -64,6 +68,12 @@ class SuperAdmin::AccountsController < SuperAdmin::ApplicationController
     # rubocop:disable Rails/I18nLocaleTexts
     redirect_back(fallback_location: [namespace, requested_resource], notice: 'Account deletion is in progress.')
     # rubocop:enable Rails/I18nLocaleTexts
+  end
+
+  private
+
+  def plan_name_param
+    params.dig(:account, :plan_name).to_s.strip.presence
   end
 end
 

@@ -11,6 +11,7 @@
 #  channel_type                  :string
 #  csat_config                   :jsonb            not null
 #  csat_survey_enabled           :boolean          default(FALSE)
+#  disabled_at                   :datetime
 #  email_address                 :string
 #  enable_auto_assignment        :boolean          default(TRUE)
 #  enable_email_collect          :boolean          default(TRUE)
@@ -83,6 +84,24 @@ class Inbox < ApplicationRecord
   after_update_commit :dispatch_update_event
 
   scope :order_by_name, -> { order('lower(name) ASC') }
+  scope :active, -> { where(disabled_at: nil) }
+  scope :disabled, -> { where.not(disabled_at: nil) }
+
+  def disabled?
+    disabled_at.present?
+  end
+
+  def disable!
+    return if disabled?
+
+    update!(disabled_at: Time.current)
+  end
+
+  def enable!
+    return unless disabled?
+
+    update!(disabled_at: nil)
+  end
 
   # Adds multiple members to the inbox
   # @param user_ids [Array<Integer>] Array of user IDs to add as members

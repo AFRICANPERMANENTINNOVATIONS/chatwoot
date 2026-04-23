@@ -98,7 +98,7 @@ class Api::V1::Accounts::AgentsController < Api::V1::Accounts::BaseController
   end
 
   def available_agent_count
-    Current.account.usage_limits[:agents] - agents.count
+    Current.account.usage_limits[:agents] - Current.account.account_users.active.count
   end
 
   def can_add_agent?

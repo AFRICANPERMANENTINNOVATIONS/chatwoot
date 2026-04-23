@@ -1,0 +1,68 @@
+# PerfectCX plan tiers.
+# Single source of truth consumed by Accounts::PlanApplierService and
+# PerfectCX::Plans loader.
+#
+# Keys:
+#   display_name: label shown in Super Admin and to the customer
+#   limits:       written to Account#limits (JSONB). Enforced by usage_limits.
+#   features:     list of feature names (config/features.yml). Use the literal
+#                 string "ALL" to enable every non-deprecated, non-internal
+#                 feature.
+
+starter:
+  display_name: Starter
+  limits:
+    agents: 3
+    inboxes: 3
+    captain_responses: 0
+    captain_documents: 0
+  features:
+    - channel_email
+    - channel_facebook
+    - channel_instagram
+    - channel_website
+    - inbound_emails
+    - labels
+    - canned_responses
+    - agent_management
+    - help_center
+    - reports
+
+pro:
+  display_name: Pro
+  limits:
+    agents: 10
+    inboxes: 10
+    captain_responses: 500
+    captain_documents: 20
+  features:
+    - channel_email
+    - channel_facebook
+    - channel_instagram
+    - channel_website
+    - channel_voice
+    - inbound_emails
+    - campaigns
+    - whatsapp_campaign
+    - captain_integration
+    - help_center
+    - macros
+    - custom_attributes
+    - automations
+    - labels
+    - canned_responses
+    - agent_management
+    - team_management
+    - inbox_management
+    - sla
+    - reports
+    - integrations
+
+enterprise:
+  display_name: Enterprise
+  limits:
+    agents: 100
+    inboxes: 50
+    captain_responses: 10000
+    captain_documents: 200
+  features: ALL

@@ -718,6 +718,12 @@ const menuItems = computed(() => {
           icon: 'i-lucide-credit-card',
           to: accountScopedRoute('billing_settings_index'),
         },
+        {
+          name: 'Settings Plan',
+          label: t('SIDEBAR.PLAN'),
+          icon: 'i-lucide-layers',
+          to: accountScopedRoute('plan_settings_index'),
+        },
       ],
     },
   ];

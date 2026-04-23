@@ -108,7 +108,7 @@ module Api::V1::InboxesHelper
   end
 
   def validate_limit
-    return unless Current.account.inboxes.count >= Current.account.usage_limits[:inboxes]
+    return unless Current.account.inboxes.active.count >= Current.account.usage_limits[:inboxes]
 
     render_payment_required('Account limit exceeded. Upgrade to a higher plan')
   end
