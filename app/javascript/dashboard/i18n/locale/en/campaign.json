@@ -118,13 +118,34 @@
           },
           "AUDIENCE": {
             "LABEL": "Audience",
-            "PLACEHOLDER": "Select the customer labels",
-            "ERROR": "Audience is required"
+            "HINT": "Build conditions to target contacts (name, phone, city, labels, custom attributes, last activity…).",
+            "ADD_CONDITION": "+ Add condition",
+            "COUNT": "{n} contacts will be reached",
+            "PREVIEW_LOADING": "Counting…",
+            "CAP": {
+              "LABEL": "Warn above",
+              "PLACEHOLDER": "e.g. 10000",
+              "HINT": "Leave empty to disable the warning."
+            },
+            "OVER_LIMIT_WARNING": "Audience exceeds {limit}. Consider enabling batching below to stay under provider limits.",
+            "ERROR": "At least one condition is required"
           },
           "SCHEDULED_AT": {
             "LABEL": "Scheduled time",
             "PLACEHOLDER": "Please select the time",
             "ERROR": "Scheduled time is required"
+          },
+          "BATCH": {
+            "TITLE": "Send in batches (optional)",
+            "HINT": "Use this to respect SMS provider rate limits. Leave empty to send everything at once.",
+            "SIZE": {
+              "LABEL": "Batch size",
+              "PLACEHOLDER": "e.g. 500"
+            },
+            "INTERVAL": {
+              "LABEL": "Interval (minutes)",
+              "PLACEHOLDER": "e.g. 30"
+            }
           },
           "BUTTONS": {
             "CREATE": "Create",
@@ -182,13 +203,34 @@
           },
           "AUDIENCE": {
             "LABEL": "Audience",
-            "PLACEHOLDER": "Select the customer labels",
-            "ERROR": "Audience is required"
+            "HINT": "Build conditions to target contacts (name, phone, city, labels, custom attributes, last activity…).",
+            "ADD_CONDITION": "+ Add condition",
+            "COUNT": "{n} contacts will be reached",
+            "PREVIEW_LOADING": "Counting…",
+            "CAP": {
+              "LABEL": "Warn above",
+              "PLACEHOLDER": "e.g. 10000",
+              "HINT": "Leave empty to disable the warning."
+            },
+            "OVER_LIMIT_WARNING": "Audience exceeds {limit}. Consider enabling batching below to stay under WhatsApp daily limits.",
+            "ERROR": "At least one condition is required"
           },
           "SCHEDULED_AT": {
             "LABEL": "Scheduled time",
             "PLACEHOLDER": "Please select the time",
             "ERROR": "Scheduled time is required"
+          },
+          "BATCH": {
+            "TITLE": "Send in batches (optional)",
+            "HINT": "Use this to respect WhatsApp rate limits (e.g. 10k/24h). Leave empty to send everything at once.",
+            "SIZE": {
+              "LABEL": "Batch size",
+              "PLACEHOLDER": "e.g. 500"
+            },
+            "INTERVAL": {
+              "LABEL": "Interval (minutes)",
+              "PLACEHOLDER": "e.g. 30"
+            }
           },
           "BUTTONS": {
             "CREATE": "Create",
