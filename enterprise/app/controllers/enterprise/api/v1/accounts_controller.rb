@@ -92,6 +92,9 @@ class Enterprise::Api::V1::AccountsController < Api::BaseController
   def fetch_account
     @account = current_user.accounts.find(params[:id])
     @current_account_user = @account.account_users.find_by(user_id: current_user.id)
+    return unless @current_account_user&.disabled?
+
+    render json: { error: 'Your access to this account has been disabled. Contact your administrator.' }, status: :unauthorized
   end
 
   def stripe_customer_id
