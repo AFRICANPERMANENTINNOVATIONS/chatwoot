@@ -336,6 +336,7 @@
     "MACROS": "Macros",
     "TEAMS": "Teams",
     "BILLING": "Billing",
+    "PLAN": "Plan",
     "CUSTOM_VIEWS_FOLDER": "Folders",
     "CUSTOM_VIEWS_SEGMENTS": "Segments",
     "ALL_CONTACTS": "All Contacts",
@@ -483,6 +484,21 @@
         "GO_BACK": "Go Back",
         "CONFIRM_PURCHASE": "Confirm Purchase"
       }
+    }
+  },
+  "PLAN_SETTINGS": {
+    "TITLE": "Plan & Usage",
+    "DESCRIPTION": "Review your current plan, usage against limits, and included features.",
+    "LOADING": "Loading plan details...",
+    "NO_PLAN": "No plan is currently assigned to this account. Please contact your administrator.",
+    "CURRENT_PLAN": "Current plan",
+    "USAGE": "Usage",
+    "FEATURES": "Included features",
+    "LIMITS": {
+      "AGENTS": "Agents",
+      "INBOXES": "Inboxes",
+      "CAPTAIN_RESPONSES": "Captain responses",
+      "CAPTAIN_DOCUMENTS": "Captain documents"
     }
   },
   "SECURITY_SETTINGS": {

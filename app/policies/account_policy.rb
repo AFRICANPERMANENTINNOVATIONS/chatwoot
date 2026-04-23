@@ -11,6 +11,10 @@ class AccountPolicy < ApplicationPolicy
     @account_user.administrator? || @account_user.agent?
   end
 
+  def show_plan?
+    @account_user.administrator? || @account_user.agent?
+  end
+
   def update?
     @account_user.administrator?
   end
