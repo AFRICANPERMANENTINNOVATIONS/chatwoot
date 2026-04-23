@@ -5,7 +5,7 @@ class Whatsapp::OneoffCampaignService
     validate_campaign!
     # marks campaign completed so that other jobs won't pick it up
     campaign.completed!
-    process_audience(extract_audience_labels)
+    process_audience(resolve_audience_contact_ids)
   end
 
   # Iterates contacts identified by ids and sends the template message.
@@ -49,9 +49,8 @@ class Whatsapp::OneoffCampaignService
     validate_feature_flag!
   end
 
-  def extract_audience_labels
-    audience_label_ids = campaign.audience.select { |audience| audience['type'] == 'Label' }.pluck('id')
-    campaign.account.labels.where(id: audience_label_ids).pluck(:title)
+  def resolve_audience_contact_ids
+    Campaigns::AudienceResolver.new(account: campaign.account, audience: campaign.audience).contact_ids
   end
 
   def process_contact(contact)
@@ -70,8 +69,7 @@ class Whatsapp::OneoffCampaignService
     send_whatsapp_template_message(to: contact.phone_number, contact: contact)
   end
 
-  def process_audience(audience_labels)
-    contact_ids = campaign.account.contacts.tagged_with(audience_labels, any: true).pluck(:id)
+  def process_audience(contact_ids)
     Rails.logger.info "Processing #{contact_ids.size} contacts for campaign #{campaign.id}"
 
     if batching_enabled?

@@ -2,22 +2,37 @@
 import { reactive, computed, watch, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useVuelidate } from '@vuelidate/core';
-import { required, minLength } from '@vuelidate/validators';
+import { required, minLength, minValue } from '@vuelidate/validators';
+import { debounce } from '@chatwoot/utils';
 import { useMapGetter } from 'dashboard/composables/store';
+import { useSnakeCase } from 'dashboard/composables/useTransformKeys';
+import filterQueryGenerator from 'dashboard/helper/filterQueryGenerator';
+import CampaignsAPI from 'dashboard/api/campaigns';
 
 import Input from 'dashboard/components-next/input/Input.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import ComboBox from 'dashboard/components-next/combobox/ComboBox.vue';
-import TagMultiSelectComboBox from 'dashboard/components-next/combobox/TagMultiSelectComboBox.vue';
 import WhatsAppTemplateParser from 'dashboard/components-next/whatsapp/WhatsAppTemplateParser.vue';
+import ConditionRow from 'dashboard/components-next/filter/ConditionRow.vue';
+import { useContactFilterContext } from 'dashboard/components-next/filter/contactProvider.js';
 
 const emit = defineEmits(['submit', 'cancel']);
 
 const { t } = useI18n();
+const { filterTypes } = useContactFilterContext();
+
+const DEFAULT_DAILY_SOFT_LIMIT = 10000;
+
+const DEFAULT_CONDITION = {
+  attributeKey: 'name',
+  filterOperator: 'equal_to',
+  values: '',
+  queryOperator: 'and',
+  attributeModel: 'standard',
+};
 
 const formState = {
   uiFlags: useMapGetter('campaigns/getUIFlags'),
-  labels: useMapGetter('labels/getLabels'),
   inboxes: useMapGetter('inboxes/getWhatsAppInboxes'),
   getFilteredWhatsAppTemplates: useMapGetter(
     'inboxes/getFilteredWhatsAppTemplates'
@@ -29,28 +44,44 @@ const initialState = {
   inboxId: null,
   templateId: null,
   scheduledAt: null,
-  selectedAudience: [],
   batchSize: null,
   batchIntervalMinutes: null,
+  audienceCap: DEFAULT_DAILY_SOFT_LIMIT,
 };
 
 const state = reactive({ ...initialState });
+const audienceFilters = ref([{ ...DEFAULT_CONDITION }]);
+const audienceCount = ref(null);
+const audiencePreviewLoading = ref(false);
 const templateParserRef = ref(null);
+
+const hasAudienceValues = computed(() =>
+  audienceFilters.value.some(condition => {
+    const value = condition.values;
+    if (Array.isArray(value)) return value.length > 0;
+    return value !== '' && value !== null && value !== undefined;
+  })
+);
 
 const rules = {
   title: { required, minLength: minLength(1) },
   inboxId: { required },
   templateId: { required },
   scheduledAt: { required },
-  selectedAudience: { required },
+  audienceCount: { required, minValue: minValue(1) },
 };
 
-const v$ = useVuelidate(rules, state);
+const v$ = useVuelidate(rules, {
+  title: computed(() => state.title),
+  inboxId: computed(() => state.inboxId),
+  templateId: computed(() => state.templateId),
+  scheduledAt: computed(() => state.scheduledAt),
+  audienceCount: audienceCount,
+});
 
 const isCreating = computed(() => formState.uiFlags.value.isCreating);
 
 const currentDateTime = computed(() => {
-  // Added to disable the scheduled at field from being set to the current time
   const now = new Date();
   const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
   return localTime.toISOString().slice(0, 16);
@@ -62,10 +93,6 @@ const mapToOptions = (items, valueKey, labelKey) =>
     label: item[labelKey],
   })) ?? [];
 
-const audienceList = computed(() =>
-  mapToOptions(formState.labels.value, 'id', 'title')
-);
-
 const inboxOptions = computed(() =>
   mapToOptions(formState.inboxes.value, 'id', 'name')
 );
@@ -74,11 +101,9 @@ const templateOptions = computed(() => {
   if (!state.inboxId) return [];
   const templates = formState.getFilteredWhatsAppTemplates.value(state.inboxId);
   return templates.map(template => {
-    // Create a more user-friendly label from template name
     const friendlyName = template.name
       .replace(/_/g, ' ')
       .replace(/\b\w/g, l => l.toUpperCase());
-
     return {
       value: template.id,
       label: `${friendlyName} (${template.language || 'en'})`,
@@ -103,7 +128,6 @@ const formErrors = computed(() => ({
   inbox: getErrorMessage('inboxId', 'INBOX'),
   template: getErrorMessage('templateId', 'TEMPLATE'),
   scheduledAt: getErrorMessage('scheduledAt', 'SCHEDULED_AT'),
-  audience: getErrorMessage('selectedAudience', 'AUDIENCE'),
 }));
 
 const hasRequiredTemplateParams = computed(() => {
@@ -117,22 +141,57 @@ const isSubmitDisabled = computed(
 const formatToUTCString = localDateTime =>
   localDateTime ? new Date(localDateTime).toISOString() : null;
 
+const buildAudiencePayload = () => {
+  if (!hasAudienceValues.value) return null;
+  const snake = useSnakeCase(JSON.parse(JSON.stringify(audienceFilters.value)));
+  const { payload } = filterQueryGenerator(snake);
+  return [{ type: 'Filter', query: payload }];
+};
+
+const fetchAudienceCount = debounce(async () => {
+  const audience = buildAudiencePayload();
+  if (!audience) {
+    audienceCount.value = null;
+    return;
+  }
+  audiencePreviewLoading.value = true;
+  try {
+    const { data } = await CampaignsAPI.audiencePreview(audience);
+    audienceCount.value = data.count;
+  } catch {
+    audienceCount.value = null;
+  } finally {
+    audiencePreviewLoading.value = false;
+  }
+}, 500);
+
+watch(audienceFilters, fetchAudienceCount, { deep: true });
+
+const addCondition = () => {
+  audienceFilters.value.push({ ...DEFAULT_CONDITION });
+};
+
+const removeCondition = index => {
+  if (audienceFilters.value.length === 1) {
+    audienceFilters.value = [{ ...DEFAULT_CONDITION }];
+  } else {
+    audienceFilters.value.splice(index, 1);
+  }
+};
+
 const resetState = () => {
   Object.assign(state, initialState);
+  audienceFilters.value = [{ ...DEFAULT_CONDITION }];
+  audienceCount.value = null;
   v$.value.$reset();
 };
 
 const handleCancel = () => emit('cancel');
 
 const prepareCampaignDetails = () => {
-  // Find the selected template to get its content
   const currentTemplate = selectedTemplate.value;
   const parserData = templateParserRef.value;
-
-  // Extract template content - this should be the template message body
   const templateContent = parserData?.renderedTemplate || '';
-
-  // Prepare template_params object with the same structure as used in contacts
   const templateParams = {
     name: currentTemplate?.name || '',
     namespace: currentTemplate?.namespace || '',
@@ -157,10 +216,7 @@ const prepareCampaignDetails = () => {
     template_params: templateParams,
     inbox_id: state.inboxId,
     scheduled_at: formatToUTCString(state.scheduledAt),
-    audience: state.selectedAudience?.map(id => ({
-      id,
-      type: 'Label',
-    })),
+    audience: buildAudiencePayload() || [],
     trigger_rules: triggerRules,
   };
 };
@@ -174,7 +230,6 @@ const handleSubmit = async () => {
   handleCancel();
 };
 
-// Reset template selection when inbox changes
 watch(
   () => state.inboxId,
   () => {
@@ -226,14 +281,12 @@ watch(
       </p>
     </div>
 
-    <!-- Template Parser -->
     <WhatsAppTemplateParser
       v-if="selectedTemplate"
       ref="templateParserRef"
       :template="selectedTemplate"
     />
 
-    <!-- Contact Variables Hint -->
     <div
       v-if="selectedTemplate"
       class="p-3 rounded-lg border border-n-weak bg-n-alpha-black2"
@@ -246,19 +299,91 @@ watch(
       </p>
     </div>
 
-    <div class="flex flex-col gap-1">
-      <label for="audience" class="mb-0.5 text-sm font-medium text-n-slate-12">
-        {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.LABEL') }}
-      </label>
-      <TagMultiSelectComboBox
-        v-model="state.selectedAudience"
-        :options="audienceList"
-        :label="t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.LABEL')"
-        :placeholder="t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.PLACEHOLDER')"
-        :has-error="!!formErrors.audience"
-        :message="formErrors.audience"
-        class="[&>div>button]:bg-n-alpha-black2"
-      />
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-medium text-n-slate-12">
+          {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.LABEL') }}
+        </label>
+        <div class="flex items-center gap-2 text-xs">
+          <span v-if="audiencePreviewLoading" class="text-n-slate-10">
+            {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.PREVIEW_LOADING') }}
+          </span>
+          <span
+            v-else-if="audienceCount !== null"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-medium"
+            :class="
+              audienceCount === 0
+                ? 'bg-n-ruby-2 text-n-ruby-11'
+                : 'bg-n-teal-2 text-n-teal-11'
+            "
+          >
+            {{
+              t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.COUNT', {
+                n: audienceCount,
+              })
+            }}
+          </span>
+        </div>
+      </div>
+      <p class="text-xs text-n-slate-11">
+        {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.HINT') }}
+      </p>
+      <ul class="grid gap-3 list-none p-0 m-0">
+        <template v-for="(filter, index) in audienceFilters" :key="index">
+          <ConditionRow
+            v-if="index === 0"
+            v-model:attribute-key="filter.attributeKey"
+            v-model:filter-operator="filter.filterOperator"
+            v-model:values="filter.values"
+            :filter-types="filterTypes"
+            :show-query-operator="false"
+            @remove="removeCondition(index)"
+          />
+          <ConditionRow
+            v-else
+            v-model:attribute-key="filter.attributeKey"
+            v-model:filter-operator="filter.filterOperator"
+            v-model:query-operator="audienceFilters[index - 1].queryOperator"
+            v-model:values="filter.values"
+            :filter-types="filterTypes"
+            show-query-operator
+            @remove="removeCondition(index)"
+          />
+        </template>
+      </ul>
+      <div class="flex">
+        <Button sm ghost blue type="button" @click="addCondition">
+          {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.ADD_CONDITION') }}
+        </Button>
+      </div>
+      <div class="grid grid-cols-[1fr_auto] gap-3 items-end">
+        <Input
+          v-model="state.audienceCap"
+          type="number"
+          min="0"
+          :label="t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.CAP.LABEL')"
+          :placeholder="
+            t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.CAP.PLACEHOLDER')
+          "
+        />
+        <p class="pb-2 text-xs text-n-slate-11">
+          {{ t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.CAP.HINT') }}
+        </p>
+      </div>
+      <p
+        v-if="
+          audienceCount !== null &&
+          Number(state.audienceCap) > 0 &&
+          audienceCount > Number(state.audienceCap)
+        "
+        class="flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium bg-n-amber-2 text-n-amber-11"
+      >
+        {{
+          t('CAMPAIGN.WHATSAPP.CREATE.FORM.AUDIENCE.OVER_LIMIT_WARNING', {
+            limit: Number(state.audienceCap),
+          })
+        }}
+      </p>
     </div>
 
     <Input

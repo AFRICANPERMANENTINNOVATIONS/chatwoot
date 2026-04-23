@@ -117,7 +117,11 @@ Rails.application.routes.draw do
               resources :inbox_limits, only: [:create, :update, :destroy]
             end
           end
-          resources :campaigns, only: [:index, :create, :show, :update, :destroy]
+          resources :campaigns, only: [:index, :create, :show, :update, :destroy] do
+            collection do
+              post :audience_preview
+            end
+          end
           resource :plan, only: [:show]
           resources :dashboard_apps, only: [:index, :show, :create, :update, :destroy]
           namespace :channels do
