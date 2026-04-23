@@ -190,6 +190,18 @@
             "PLACEHOLDER": "Please select the time",
             "ERROR": "Scheduled time is required"
           },
+          "BATCH": {
+            "TITLE": "Send in batches (optional)",
+            "HINT": "Use this to respect WhatsApp rate limits (e.g. 10k/24h). Leave empty to send everything at once.",
+            "SIZE": {
+              "LABEL": "Batch size",
+              "PLACEHOLDER": "e.g. 500"
+            },
+            "INTERVAL": {
+              "LABEL": "Interval (minutes)",
+              "PLACEHOLDER": "e.g. 30"
+            }
+          },
           "BUTTONS": {
             "CREATE": "Create",
             "CANCEL": "Cancel"

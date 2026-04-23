@@ -8,6 +8,15 @@ class Whatsapp::OneoffCampaignService
     process_audience(extract_audience_labels)
   end
 
+  # Iterates contacts identified by ids and sends the template message.
+  # Used by Campaigns::Whatsapp::SendBatchJob when a campaign is split into
+  # spaced batches; safe to call in isolation.
+  def process_contact_ids(contact_ids)
+    campaign.account.contacts.where(id: contact_ids).find_each do |contact|
+      process_contact(contact)
+    end
+  end
+
   private
 
   delegate :inbox, to: :campaign
@@ -62,12 +71,36 @@ class Whatsapp::OneoffCampaignService
   end
 
   def process_audience(audience_labels)
-    contacts = campaign.account.contacts.tagged_with(audience_labels, any: true)
-    Rails.logger.info "Processing #{contacts.count} contacts for campaign #{campaign.id}"
+    contact_ids = campaign.account.contacts.tagged_with(audience_labels, any: true).pluck(:id)
+    Rails.logger.info "Processing #{contact_ids.size} contacts for campaign #{campaign.id}"
 
-    contacts.each { |contact| process_contact(contact) }
+    if batching_enabled?
+      enqueue_batches(contact_ids)
+    else
+      process_contact_ids(contact_ids)
+    end
 
     Rails.logger.info "Campaign #{campaign.id} processing completed"
+  end
+
+  def batching_enabled?
+    batch_size.positive?
+  end
+
+  def batch_size
+    campaign.trigger_rules&.dig('batch_size').to_i
+  end
+
+  def batch_interval_minutes
+    [campaign.trigger_rules&.dig('batch_interval_minutes').to_i, 0].max
+  end
+
+  def enqueue_batches(contact_ids)
+    contact_ids.each_slice(batch_size).with_index do |slice, index|
+      Campaigns::Whatsapp::SendBatchJob
+        .set(wait: (index * batch_interval_minutes).minutes)
+        .perform_later(campaign.id, slice)
+    end
   end
 
   def send_whatsapp_template_message(to:, contact:)
