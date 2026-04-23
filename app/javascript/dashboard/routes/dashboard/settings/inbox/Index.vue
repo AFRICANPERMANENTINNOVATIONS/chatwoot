@@ -145,7 +145,7 @@ const openDelete = inbox => {
                 </span>
                 <span
                   v-if="inbox.disabled"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-n-ruby-3 text-n-ruby-11"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-n-ruby-2 text-n-ruby-11"
                 >
                   {{ $t('INBOX_MGMT.LIST.DISABLED') }}
                 </span>
