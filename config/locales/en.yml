@@ -337,6 +337,14 @@ en:
       name: 'OpenAI'
       short_description: 'AI-powered reply suggestions, summarization, and message enhancement.'
       description: 'Leverage the power of large language models from OpenAI with the features such as reply suggestions, summarization, message rephrasing, spell-checking, and label classification.'
+    anthropic:
+      name: 'Anthropic'
+      short_description: 'Use your own Anthropic API key to power Captain with Claude models.'
+      description: 'Connect your Anthropic account to use Claude models (Haiku, Sonnet, Opus) for Captain replies, copilot suggestions, and more. Your API key is stored securely and used only for your account.'
+    gemini:
+      name: 'Gemini'
+      short_description: 'Use your own Google Gemini API key to power Captain.'
+      description: 'Connect your Google AI Studio account to use Gemini models (Flash, Pro) for Captain replies, copilot suggestions, and more. Your API key is stored securely and used only for your account.'
     linear:
       name: 'Linear'
       short_description: 'Create and link Linear issues directly from conversations.'

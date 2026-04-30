@@ -24,7 +24,12 @@ class Captain::Llm::AssistantChatService < Llm::BaseAiService
   def generate_response(additional_message: nil, message_history: [], role: 'user')
     @messages += message_history
     @messages << { role: role, content: additional_message } if additional_message.present?
-    request_chat_completion
+    return request_chat_completion unless @assistant&.account
+
+    Llm::Config.with_account_keys(@assistant.account) do |context|
+      self.llm_context = context
+      request_chat_completion
+    end
   end
 
   private

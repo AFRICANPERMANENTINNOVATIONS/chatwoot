@@ -17,7 +17,7 @@ class Captain::Llm::EmbeddingService
     return [] if content.blank?
 
     instrument_embedding_call(instrumentation_params(content, model)) do
-      RubyLLM.embed(content, model: model).vectors
+      embed_source.embed(content, model: model).vectors
     end
   rescue RubyLLM::Error => e
     Rails.logger.error "Embedding API Error: #{e.message}"
@@ -25,6 +25,13 @@ class Captain::Llm::EmbeddingService
   end
 
   private
+
+  def embed_source
+    account = @account_id && Account.find_by(id: @account_id)
+    return RubyLLM unless account
+
+    @embed_source ||= Llm::Config.with_account_keys(account) { |context| context }
+  end
 
   def instrumentation_params(content, model)
     {

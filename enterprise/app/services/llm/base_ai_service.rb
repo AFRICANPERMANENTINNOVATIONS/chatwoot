@@ -7,6 +7,7 @@ class Llm::BaseAiService
   DEFAULT_TEMPERATURE = 1.0
 
   attr_reader :model, :temperature
+  attr_accessor :llm_context
 
   def initialize
     Llm::Config.initialize!
@@ -15,7 +16,8 @@ class Llm::BaseAiService
   end
 
   def chat(model: @model, temperature: @temperature)
-    RubyLLM.chat(model: model).with_temperature(temperature)
+    source = @llm_context || RubyLLM
+    source.chat(model: model).with_temperature(temperature)
   end
 
   private

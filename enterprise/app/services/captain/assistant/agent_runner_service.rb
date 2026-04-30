@@ -28,7 +28,9 @@ class Captain::Assistant::AgentRunnerService
 
   def generate_response(message_history: [])
     message_to_process, context = run_payload(message_history)
-    result = runner.run(message_to_process, context: context, max_turns: 100)
+    result = with_account_llm_keys do
+      runner.run(message_to_process, context: context, max_turns: 100)
+    end
 
     process_agent_result(result)
   rescue StandardError => e
@@ -41,6 +43,16 @@ class Captain::Assistant::AgentRunnerService
   end
 
   private
+
+  # Swaps the global RubyLLM config to the account's BYOK keys for the duration of the
+  # ai-agents run. The library reads RubyLLM globals at chat time, so a per-call context
+  # would be ignored. See Llm::Config#using_account_keys! for the safety trade-off.
+  def with_account_llm_keys(&block)
+    account = @assistant&.account
+    return yield unless account
+
+    Llm::Config.using_account_keys!(account, &block)
+  end
 
   def build_context(message_history)
     conversation_history = message_history.map do |msg|
