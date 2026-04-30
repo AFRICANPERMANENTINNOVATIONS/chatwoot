@@ -57,7 +57,7 @@
   "BUBBLE": {
     "LABEL": "联系我们"
   },
-  "POWERED_BY": "由 Chatwoot 支持",
+  "POWERED_BY": "由 PerfectCX 支持",
   "EMAIL_PLACEHOLDER": "请输入您的电子邮件",
   "CHAT_PLACEHOLDER": "输入您的消息",
   "TODAY": "今天",
@@ -147,7 +147,7 @@
       "CONTENT": "分享了一个网址"
     }
   },
-  "POWERED_BY": "Powered by PerfectCX",
-  "EMAIL_PLACEHOLDER": "Please enter your email",
-  "CHAT_PLACEHOLDER": "Type your message"
+  "FOOTER_REPLY_TO": {
+    "REPLY_TO": "回复："
+  }
 }
